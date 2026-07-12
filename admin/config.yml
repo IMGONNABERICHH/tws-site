@@ -1,0 +1,28 @@
+backend:
+  name: github
+  repo: IMGONNABERICHH/tws-site
+  branch: main
+  base_url: https://api.netlify.com
+  auth_endpoint: auth
+
+media_folder: "images/uploads"
+public_folder: "/images/uploads"
+
+site_url: https://tws.7-langes.com
+logo_url: https://tws.7-langes.com/images/tws-logo.png
+
+collections:
+  - name: "stories"
+    label: "Stories"
+    folder: "content/stories"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Headline", name: "title", widget: "string" }
+      - { label: "Kicker (section label, e.g. The Interview)", name: "kicker", widget: "string", default: "Story" }
+      - { label: "Location (e.g. Los Angeles)", name: "location", widget: "string", required: false }
+      - { label: "Dateline shown to readers (e.g. Feb 1, 2023)", name: "dateline", widget: "string", required: false }
+      - { label: "Date (controls story order, newest first)", name: "date", widget: "datetime", format: "YYYY-MM-DD", time_format: false }
+      - { label: "YouTube video ID (the part after watch?v=)", name: "video", widget: "string", required: false }
+      - { label: "Photos", name: "photos", widget: "list", required: false, field: { label: "Photo", name: "photo", widget: "image" } }
+      - { label: "Story", name: "body", widget: "markdown" }
