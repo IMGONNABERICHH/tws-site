@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TWS — Music & Culture, Los Angeles</title>
+  <meta name="description" content="TWS is an independent music and culture publication based in Los Angeles. Live coverage, interviews, and radio from the ground up.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Doto:wght@500;700;900&family=DotGothic16&family=Space+Mono:ital@0;1&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --black: #070707;
+      --white: #f2f0ea;
+      --dim: rgba(242,240,234,0.45);
+      --faint: rgba(242,240,234,0.18);
+      --blue: #2b3aff; /* TWS brand blue — The Winning Season */
+      --doto: 'Doto', monospace;
+      --pixel: 'DotGothic16', monospace;
+      --mono: 'Space Mono', monospace;
+    }
+
+    ::selection { background: var(--white); color: var(--black); }
+
+    html, body {
+      background: var(--black);
+      color: var(--white);
+      font-family: var(--mono);
+      font-size: 14px;
+      line-height: 1.75;
+      overflow-x: hidden;
+    }
+
+    /* crt grain */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      opacity: 0.06;
+      pointer-events: none;
+      z-index: 999;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 200px 200px;
+    }
+
+    .wrap { max-width: 1160px; margin: 0 auto; padding: 0 30px; }
+
+    /* ─── FIXED NAV ─── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 200;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 30px;
+      mix-blend-mode: difference;
+    }
+
+    .nav-logo {
+      font-family: var(--doto);
+      font-weight: 900;
+      font-size: 22px;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .nav-links { display: flex; gap: 28px; list-style: none; }
+
+    .nav-links span {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      cursor: pointer;
+      color: var(--dim);
+    }
+
+    .nav-links span:hover { color: var(--white); }
+    .nav-links span.active { color: var(--white); border-bottom: 1px dotted var(--white); }
+
+    /* ─── PAGE SYSTEM ─── */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ─── HERO ─── */
+    .hero {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .hero .spec {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--dim);
+      margin-bottom: 26px;
+    }
+
+    .hero h1 {
+      font-family: var(--doto);
+      font-weight: 900;
+      font-size: clamp(110px, 22vw, 300px);
+      line-height: 0.85;
+      letter-spacing: 0.02em;
+      user-select: none;
+    }
+
+    .hero h1 .block { color: var(--blue); }
+
+    .hero .sub {
+      margin-top: 30px;
+      font-family: var(--pixel);
+      font-size: clamp(13px, 1.8vw, 18px);
+      letter-spacing: 0.42em;
+      text-transform: uppercase;
+    }
+
+    .hero .contact {
+      margin-top: 14px;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      color: var(--blue);
+    }
+
+    .hero .scroll-hint {
+      position: absolute;
+      bottom: 76px;
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--dim);
+      animation: blink 1.6s steps(2) infinite;
+    }
+
+    @keyframes blink { 50% { opacity: 0.15; } }
+
+    /* ─── MARQUEE ─── */
+    .marquee {
+      border-top: 1px dotted var(--faint);
+      border-bottom: 1px dotted var(--faint);
+      overflow: hidden;
+      white-space: nowrap;
+      padding: 12px 0;
+      user-select: none;
+    }
+
+    .marquee-inner {
+      display: inline-block;
+      animation: scroll 28s linear infinite;
+      font-family: var(--pixel);
+      font-size: 14px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+    }
+
+    .marquee-inner .block { color: var(--blue); }
+
+    @keyframes scroll {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    /* ─── STORIES: MONKEYPAW ROWS ─── */
+    .work { padding: 90px 0 40px; }
+
+    .section-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--dim);
+      margin-bottom: 34px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .work-row {
+      padding: 34px 0;
+      border-bottom: 1px dotted var(--faint);
+      cursor: pointer;
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      gap: 26px;
+      align-items: baseline;
+    }
+
+    .work-row:first-of-type { border-top: 1px dotted var(--faint); }
+
+    .work-row .ref {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      color: var(--dim);
+      border: 1px solid var(--faint);
+      padding: 2px 8px;
+      justify-self: start;
+    }
+
+    .work-row h3 {
+      font-family: var(--doto);
+      font-weight: 700;
+      font-size: clamp(26px, 4.6vw, 58px);
+      line-height: 1.05;
+      text-transform: uppercase;
+      letter-spacing: 0.01em;
+      transition: color 0.15s;
+    }
+
+    .work-row h3 .block { color: var(--blue); }
+
+    .work-row .meta {
+      grid-column: 2;
+      display: flex;
+      gap: 26px;
+      margin-top: 10px;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--dim);
+    }
+
+    .work-row:hover { background: var(--white); }
+    .work-row:hover h3 { color: var(--black); }
+    .work-row:hover .meta, .work-row:hover .ref { color: rgba(7,7,7,0.6); border-color: rgba(7,7,7,0.3); }
+
+    /* ─── ARTICLE ─── */
+    .article { max-width: 720px; margin: 0 auto; padding-top: 130px; }
+
+    .back {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 9.5px;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: var(--dim);
+      border: 1px solid var(--faint);
+      padding: 4px 14px;
+      cursor: pointer;
+      margin-bottom: 40px;
+    }
+    .back:hover { background: var(--white); color: var(--black); }
+    .back::before { content: '← '; }
+
+    .article .kicker {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 12px;
+    }
+
+    .article h2 {
+      font-family: var(--doto);
+      font-weight: 900;
+      font-size: clamp(30px, 5vw, 54px);
+      line-height: 1.05;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+
+    .article .byline {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--dim);
+      padding-bottom: 24px;
+      border-bottom: 1px dotted var(--faint);
+      margin-bottom: 34px;
+    }
+
+    .article p {
+      font-size: 14px;
+      line-height: 2;
+      color: rgba(242,240,234,0.85);
+      margin-bottom: 26px;
+    }
+
+    .article p:first-of-type::first-letter {
+      font-family: var(--doto);
+      font-weight: 900;
+      font-size: 48px;
+      float: left;
+      line-height: 0.8;
+      padding: 6px 12px 0 0;
+      color: var(--blue);
+    }
+
+    .embed {
+      margin: 38px 0;
+      aspect-ratio: 16/9;
+      background: #000;
+      border: 1px dotted var(--dim);
+      padding: 8px;
+    }
+
+    .embed iframe { width: 100%; height: 100%; border: 0; display: block; }
+
+    /* ─── RADIO ─── */
+    .radio-page { padding-top: 130px; }
+
+    .radio-head { text-align: center; margin-bottom: 50px; }
+
+    .radio-head .kicker {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 10px;
+    }
+
+    .radio-head h2 {
+      font-family: var(--doto);
+      font-weight: 900;
+      font-size: clamp(44px, 9vw, 110px);
+      line-height: 0.9;
+      text-transform: uppercase;
+    }
+
+    .radio-head p {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      color: var(--dim);
+      max-width: 480px;
+      margin: 18px auto 0;
+      text-transform: uppercase;
+    }
+
+    .radio-show { margin: 0 auto 34px; max-width: 760px; border: 1px dotted var(--dim); padding: 8px; }
+    .radio-show iframe { width: 100%; height: 352px; border: 0; display: block; border-radius: 0; }
+
+    .radio-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+      max-width: 940px;
+      margin: 0 auto;
+    }
+
+    .radio-grid > div { border: 1px dotted var(--faint); padding: 7px; }
+    .radio-grid iframe { width: 100%; height: 152px; border: 0; display: block; }
+
+    /* ─── ABOUT / PRESS ─── */
+    .about { max-width: 720px; margin: 0 auto; padding-top: 130px; }
+
+    .about .kicker {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 12px;
+    }
+
+    .about h2 {
+      font-family: var(--doto);
+      font-weight: 900;
+      font-size: clamp(28px, 4.6vw, 50px);
+      line-height: 1.05;
+      text-transform: uppercase;
+      margin-bottom: 30px;
+    }
+
+    .about p { font-size: 14px; line-height: 2; color: rgba(242,240,234,0.85); margin-bottom: 24px; }
+
+    .about a { color: var(--blue); text-decoration: none; border-bottom: 1px dotted var(--blue); }
+    .about a:hover { background: var(--blue); color: var(--black); }
+
+    /* spec-label masthead, like a product tag */
+    .spec-box {
+      margin: 44px 0;
+      border: 1px solid var(--dim);
+      padding: 30px 32px;
+      font-family: var(--pixel);
+    }
+
+    .spec-box .spec-title {
+      font-family: var(--mono);
+      font-size: 9.5px;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 20px;
+    }
+
+    .spec-row {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      padding: 9px 0;
+      font-size: 17px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .spec-row .tag {
+      font-family: var(--mono);
+      font-size: 9.5px;
+      letter-spacing: 0.2em;
+      border: 1px solid var(--dim);
+      padding: 1px 8px;
+      color: var(--dim);
+      min-width: 128px;
+      text-align: center;
+    }
+
+    .spec-row a { font-family: var(--mono); font-size: 13px; }
+
+    /* ─── FOOTER: PRODUCT LABEL ─── */
+    footer {
+      margin-top: 110px;
+      border-top: 1px dotted var(--faint);
+      padding: 40px 30px 50px;
+    }
+
+    .foot-word {
+      font-family: var(--doto);
+      font-weight: 900;
+      font-size: clamp(60px, 14vw, 190px);
+      line-height: 0.85;
+      text-align: center;
+      text-transform: uppercase;
+      user-select: none;
+      margin-bottom: 36px;
+    }
+
+    .foot-word .block { color: var(--blue); }
+
+    .foot-spec {
+      max-width: 1160px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 18px;
+      font-family: var(--mono);
+      font-size: 9.5px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--dim);
+    }
+
+    .foot-spec .socials { display: flex; gap: 20px; }
+    .foot-spec a { color: var(--dim); text-decoration: none; }
+    .foot-spec a:hover { color: var(--blue); }
+
+    .barcode {
+      height: 26px;
+      width: 150px;
+      background: repeating-linear-gradient(90deg,
+        var(--white) 0, var(--white) 2px,
+        transparent 2px, transparent 4px,
+        var(--white) 4px, var(--white) 5px,
+        transparent 5px, transparent 9px,
+        var(--white) 9px, var(--white) 12px,
+        transparent 12px, transparent 14px);
+      opacity: 0.75;
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 760px) {
+      .work-row { grid-template-columns: 1fr; gap: 12px; }
+      .work-row .meta { grid-column: 1; flex-wrap: wrap; gap: 12px; }
+      .radio-grid { grid-template-columns: 1fr; }
+      .nav-links { gap: 16px; }
+      .spec-row { flex-direction: column; align-items: flex-start; gap: 6px; }
+      .foot-spec { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="nav-logo" onclick="show('front')">TWS</div>
+    <ul class="nav-links">
+      <li><span class="active" id="tab-front" onclick="show('front')">Stories</span></li>
+      <li><span id="tab-radio" onclick="show('radio')">Radio</span></li>
+      <li><span id="tab-about" onclick="show('about-page')">About &amp; Press</span></li>
+    </ul>
+  </nav>
+
+  <main>
+
+    <!-- ═══ FRONT ═══ -->
+    <div class="page active" id="front">
+
+      <div class="hero" onclick="document.getElementById('work-anchor').scrollIntoView({behavior:'smooth'})">
+        <p class="spec">NA02—26 · Independent Press · Los Angeles</p>
+        <h1>TWS<span class="block">▓</span></h1>
+        <p class="sub">Music &nbsp;Culture &nbsp;Radio</p>
+        <p class="contact">contact: raven.curry@7langes.la</p>
+        <span class="scroll-hint">▼ Selected Coverage</span>
+      </div>
+
+      <div class="marquee">
+        <span class="marquee-inner" id="ticker"></span>
+      </div>
+
+      <div class="work wrap" id="work-anchor">
+        <p class="section-label"><span>Selected Coverage</span><span>REF TWS-001</span></p>
+
+        {{WORK_ROWS}}
+
+        <div class="work-row" onclick="show('radio')">
+          <span class="ref">07</span>
+          <div>
+            <h3>7LA Radio: The Sound Of The City<span class="block">▓</span></h3>
+            <div class="meta"><span>On Air</span><span>Spotify</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ ARTICLES ═══ -->
+{{ARTICLE_PAGES}}
+
+    <!-- ═══ RADIO ═══ -->
+    <div class="page radio-page" id="radio">
+      <div class="wrap">
+        <div class="radio-head">
+          <p class="kicker">On Air</p>
+          <h2>7LA Radio<span style="color:var(--blue)">▓</span></h2>
+          <p>Conversations and mixes from the LA underground — the sound of the city, streaming on Spotify.</p>
+        </div>
+        <div class="radio-show">
+          <iframe loading="lazy" src="https://open.spotify.com/embed/show/4gS5lHA65nM9PYOlqy8kvS?utm_source=generator&theme=0" allow="encrypted-media"></iframe>
+        </div>
+        <div class="radio-grid">
+          <div><iframe loading="lazy" src="https://open.spotify.com/embed/episode/6jfM8S8BbjE8rpphcrlj98?utm_source=generator&theme=0" allow="encrypted-media"></iframe></div>
+          <div><iframe loading="lazy" src="https://open.spotify.com/embed/episode/3gxq1KU7YwpNdT6CgppbJf?utm_source=generator&theme=0" allow="encrypted-media"></iframe></div>
+          <div><iframe loading="lazy" src="https://open.spotify.com/embed/episode/6HMjXHCBOVa0XmAoccoEDT?utm_source=generator&theme=0" allow="encrypted-media"></iframe></div>
+          <div><iframe loading="lazy" src="https://open.spotify.com/embed/episode/0FHpcOxFb7KuKl1j2fePLg?utm_source=generator&theme=0" allow="encrypted-media"></iframe></div>
+          <div><iframe loading="lazy" src="https://open.spotify.com/embed/episode/2yhTbXdqEmiyrv9sVJu5z0?utm_source=generator&theme=0" allow="encrypted-media"></iframe></div>
+          <div><iframe loading="lazy" src="https://open.spotify.com/embed/episode/4u4zpXVlFjPyxXjcSOXoJg?utm_source=generator&theme=0" allow="encrypted-media"></iframe></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ ABOUT / PRESS ═══ -->
+    <div class="page" id="about-page">
+      <div class="about wrap">
+        <p class="kicker">About TWS</p>
+        <h2>An independent music &amp; culture publication, born in Los Angeles<span style="color:var(--blue)">▓</span></h2>
+        <p>TWS covers the artists and moments shaping music culture from the ground up — live event coverage, artist interviews, festival reporting, and radio. Our lens is the LA underground and the culture the rest of the industry follows years too late.</p>
+        <p>Our coverage spans Grammy-week events, Coachella, festival launches, and one-on-one interviews with rising and established artists — documented in original video, photography, and writing.</p>
+        <div class="spec-box">
+          <p class="spec-title">Masthead · NA02—26 · New Understanding of Various Artists</p>
+          <div class="spec-row"><span class="tag">Editor-in-Chief</span><span>Raven Curry</span></div>
+          <div class="spec-row"><span class="tag">Press Desk</span><span><a href="mailto:raven.curry@7langes.la">raven.curry@7langes.la</a></span></div>
+          <div class="spec-row"><span class="tag">Video &amp; Photo</span><span>TWS Studio</span></div>
+          <div class="spec-row"><span class="tag">REF</span><span>TWS-001 · LOS ANGELES</span></div>
+          <div class="spec-row"><span class="tag">EST</span><span>2020 — ∞</span></div>
+        </div>
+        <p><strong>For publicists &amp; press teams:</strong> TWS welcomes credential opportunities, interview requests, album premieres, and event coverage inquiries. Reach the press desk at <a href="mailto:raven.curry@7langes.la">raven.curry@7langes.la</a> — we respond quickly and publish with original video coverage.</p>
+      </div>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="foot-word">TWS<span class="block">▓</span></div>
+    <div class="foot-spec">
+      <span>TWS © 2026 · PROD 07/11/2026</span>
+      <div class="barcode" aria-hidden="true"></div>
+      <div class="socials">
+        <a href="https://www.youtube.com/@7langes/videos" target="_blank" rel="noopener">YouTube</a>
+        <a href="https://www.instagram.com/7langes.la" target="_blank" rel="noopener">Instagram</a>
+        <a href="https://www.tiktok.com/@7langes" target="_blank" rel="noopener">TikTok</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    function show(id) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      document.querySelectorAll('.nav-links span').forEach(t => t.classList.remove('active'));
+      const tab = id === 'radio' ? 'tab-radio' : id === 'about-page' ? 'tab-about' : 'tab-front';
+      document.getElementById(tab).classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
+
+    // marquee ticker (doubled for seamless loop)
+    (function () {
+      const seq = 'MUSIC <span class="block">▓</span> CULTURE <span class="block">▓</span> LOS ANGELES <span class="block">▓</span> LIVE COVERAGE <span class="block">▓</span> INTERVIEWS <span class="block">▓</span> RADIO <span class="block">▓</span> PRESS <span class="block">▓</span> ';
+      document.getElementById('ticker').innerHTML = seq.repeat(6);
+    })();
+  </script>
+</body>
+</html>
