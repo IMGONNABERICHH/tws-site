@@ -2,7 +2,7 @@
 title: Curren$y Is Going On Tour
 kicker: Concerts
 date: 2025-04-12
-video: Ne0UgKCtc3A&t=9s
+video: https://youtu.be/Ne0UgKCtc3A?si=MJ0VoZVo-BN9PrAS
 photos:
   - /images/uploads/fd75f7f6-bdee-4069-b0df-d4a44c5210ef_rw_1200.jpeg
 ---
