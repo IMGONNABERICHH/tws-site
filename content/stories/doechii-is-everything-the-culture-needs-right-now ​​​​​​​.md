@@ -1,5 +1,5 @@
 ---
-title: Doechii is everything the culture needs right now ​​​​​​​
+title: Doechii Is Everything The Culture Needs Right Now
 kicker: Story
 date: 2024-10-03
 video: VFGEwKUcI
