@@ -1,0 +1,6 @@
+---
+title: "Doechii is everything the culture needs right now "
+kicker: Story
+date: 2024-10-14
+---
+Florida native Jaylah Hickmon also known as Doechii (26) is a musician signed to the notorious label Top Dawg Entertainment better known for its acronym T.D.E. Which has signed very popular artist such as SZA, Isaiah Rashad, (formally) Kendrick Lamar, Schoolboy Q, and Ray Vaughn just to name a few. And as the roster continues to grow, we see a new wave of artist with fresh approaches to the game. One of them being Doechii, she signed to the label in 2022. And has proven year after year that she has what it takes to elevate the culture. In a time where everyone is being put into a box she does "everything" sonically. As she states in her song Boom Bap "I am everything" and quite literally her music tends to break barriers of traditional rap or R&B per say all while remaining close to her roots. This is seen throughout Doechii's recent mixtape called Alligator Bites Never Heals.It feels authentic although there is not one set sound the genre blending is so seamless making it a cohesive body of work. Similar to an abstract painting the core essence of what music and art. And because of her authenticity and great storytelling I believe she will continue to receive a lot of accolades and essentially thrive in this current model of the music business.
