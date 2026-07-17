@@ -1,0 +1,25 @@
+name: Deploy to Cloudflare Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: 8685957a82fa94a4d6d766f0b35acc3a
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node build.js
+      - name: Deploy
+        if: env.CLOUDFLARE_API_TOKEN != ''
+        run: npx --yes wrangler@4 pages deploy dist --project-name=tws-site --branch=main --commit-dirty=true
+      - name: Missing token notice
+        if: env.CLOUDFLARE_API_TOKEN == ''
+        run: echo "::warning::CLOUDFLARE_API_TOKEN secret is not set. Build succeeded but the deploy to Cloudflare Pages was skipped."
