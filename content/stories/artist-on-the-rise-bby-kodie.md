@@ -1,5 +1,5 @@
 ---
-title: Artist On The Rise - BBY Kodie
+title: "Artist On The Rise - BBY Kodie "
 kicker: Story
 location: Los Angeles, CA
 date: 2021-07-24
