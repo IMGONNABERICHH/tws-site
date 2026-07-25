@@ -1,7 +1,7 @@
 ---
 title: LA AFTER THE WORLD CUP
 kicker: Sports
-date: 2026-08-07
+date: 2026-07-20
 ---
 Eight matches. More than 560,000 people through the gates in Inglewood. A Fan Festival at the Coliseum, ten official fan zones, three hundred–odd community events scattered across the region. Los Angeles hosted a World Cup and, by the numbers the tourism office is circulating, hosted it well.
 
