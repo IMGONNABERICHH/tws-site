@@ -2,7 +2,7 @@
 title: "THE ARCHITECT OF INFLUENCE: DJ MAGIX"
 kicker: MUSIC
 location: Los Angeles
-date: 2026-07-31
+date: 2026-07-29
 photos:
   - /images/uploads/img_2363.jpg
   - /images/uploads/img_2392.jpg
