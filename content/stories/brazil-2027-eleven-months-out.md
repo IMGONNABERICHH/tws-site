@@ -1,7 +1,7 @@
 ---
 title: Women's World Cup 2027 In Brazil
 kicker: Sports
-date: 2026-07-31
+date: 2026-07-27
 ---
 The tenth FIFA Women's World Cup runs June 24 to July 25, 2027 in Brazil. Thirty-two teams. Eight cities. Sixty-four matches.
 
