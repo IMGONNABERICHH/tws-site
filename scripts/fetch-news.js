@@ -155,8 +155,12 @@ async function summarize(items) {
     return items;
   }
 
+  // keys copied on a phone often arrive wrapped across lines — strip any
+  // whitespace so a stray newline in the secret doesn't fail the run
+  const apiKey = process.env.ANTHROPIC_API_KEY.replace(/\s+/g, '');
+
   const { default: Anthropic } = await import('@anthropic-ai/sdk');
-  const client = new Anthropic();
+  const client = new Anthropic({ apiKey });
 
   const payload = items.map((item, i) => ({
     index: i,
