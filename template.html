@@ -360,7 +360,7 @@
       margin-bottom: 26px;
     }
 
-    .article p:first-of-type::first-letter {
+    .article .byline + p::first-letter {
       font-family: var(--doto);
       font-weight: 900;
       font-size: 48px;
@@ -611,6 +611,40 @@
       color: rgba(242,240,234,0.8);
       margin-bottom: 12px;
     }
+
+    .page[id^="w-"] .article h2 {
+      font-size: clamp(24px, 3.2vw, 38px);
+      text-transform: none;
+    }
+
+    .source-line {
+      margin-top: 38px;
+      padding-top: 22px;
+      border-top: 1px dotted var(--faint);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      line-height: 2.2;
+      color: var(--dim);
+    }
+
+    .source-line a { color: var(--dim); border-bottom: 1px dotted var(--faint); text-decoration: none; }
+    .source-line a:hover { color: var(--blue); border-color: var(--blue); }
+
+    .shot-credit {
+      margin-top: 8px;
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(242,240,234,0.32);
+    }
+
+    .shot-credit a { color: inherit; text-decoration: none; border-bottom: 1px dotted var(--faint); }
+
+    .wire-item { cursor: pointer; }
+    .wire-item:hover h3 { color: var(--blue); }
 
     /* ─── FEED TOGGLE ─── */
     .feed-toggle {

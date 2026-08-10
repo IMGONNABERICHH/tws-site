@@ -134,6 +134,8 @@ const storyEntries = stories.map(s => ({
   },
 }));
 
+const wireSlug = t => 'w-' + t.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60);
+
 const wireEntries = (wire ? wire.items : []).map(item => ({
   date: new Date(item.published_at || wire.generated_at),
   render: n => {
@@ -143,12 +145,12 @@ const wireEntries = (wire ? wire.items : []).map(item => ({
               <img src="${esc(p.src)}" alt="${esc(p.subject)}" loading="lazy">
               <figcaption>Photo: ${esc(p.author)} · ${esc(p.licence)} · <a href="${esc(p.page)}" target="_blank" rel="noopener">Wikimedia Commons</a></figcaption>
             </figure>\n` : '';
-    return `        <div class="wire-item feed-wire${p ? ' has-shot' : ''}">
+    return `        <div class="wire-item feed-wire${p ? ' has-shot' : ''}" onclick="show('${wireSlug(item.title)}')">
           <span class="ref">${pad(n)}</span>
           <div>
-            <h3><a href="${esc(item.url)}" target="_blank" rel="noopener">${esc(item.title)}</a></h3>
+            <h3>${esc(item.title)}</h3>
             ${item.summary ? `<p>${esc(item.summary)}</p>` : ''}
-${shot}            <p class="credit">${item.summary_is_ours ? `As ${esc(item.source)} reported` : esc(item.source)}${item.corroboration > 1 ? ` · Covered by ${item.corroboration} outlets` : ''} · <a href="${esc(item.url)}" target="_blank" rel="noopener">Read the full story</a></p>
+${shot}            <p class="credit">${item.summary_is_ours ? `As ${esc(item.source)} reported` : esc(item.source)}${item.corroboration > 1 ? ` · Covered by ${item.corroboration} outlets` : ''} · Read on TWS</p>
           </div>
         </div>`;
   },
@@ -170,6 +172,38 @@ const wireNote = wire ? `        <p class="wire-note">
           Items credited to another publication are collected from that outlet's
           news feed, summarised by TWS, and linked back to the original reporting.
         </p>` : '';
+
+// ── brief pages ──
+// Each item gets a page on TWS: the summary, the photo, and the source
+// credited with a link out at the foot for anyone who wants the full report.
+const wirePages = (wire ? wire.items : []).map(item => {
+  const p = item.photo;
+  const shot = p ? `        <figure class="story-photo">
+          <img src="${esc(p.src)}" alt="${esc(p.subject)}" loading="lazy">
+          <figcaption class="shot-credit">Photo: ${esc(p.author)} · ${esc(p.licence)} · <a href="${esc(p.page)}" target="_blank" rel="noopener">Wikimedia Commons</a></figcaption>
+        </figure>` : '';
+  const when = item.published_at
+    ? new Date(item.published_at).toLocaleDateString('en-US',
+        { timeZone: 'America/Los_Angeles', month: 'long', day: 'numeric', year: 'numeric' })
+    : (wire.dateline || '');
+  const body = (item.summary || '').split(/(?<=\.)\s+(?=[A-Z"'\u2018\u201c])/)
+    .filter(Boolean).map(par => `        <p>${esc(par)}</p>`).join('\n');
+  return `    <div class="page" id="${wireSlug(item.title)}">
+      <div class="article wrap">
+        <span class="back" onclick="show('front')">All Coverage</span>
+        <p class="kicker">The Wire</p>
+        <h2>${esc(item.title)}</h2>
+        <p class="byline">TWS${when ? ` · ${esc(when)}` : ''}</p>
+${body}
+${shot}
+        <p class="source-line">
+          ${item.summary_is_ours ? 'Summarised by TWS from reporting by' : 'Reported by'}
+          <a href="${esc(item.url)}" target="_blank" rel="noopener">${esc(item.source)}</a>${item.corroboration > 1 ? `, and covered by ${item.corroboration} outlets` : ''}.
+          <a href="${esc(item.url)}" target="_blank" rel="noopener">Read their full report</a>.
+        </p>
+      </div>
+    </div>`;
+}).join('\n\n');
 
 // ── build article pages ──
 const pages = stories.map(s => {
@@ -199,7 +233,7 @@ let out = fs.readFileSync(path.join(ROOT, 'template.html'), 'utf8')
   .replace('{{WIRE_TAB}}', () => wireTab)
   .replace('{{WORK_ROWS}}', () => rows)
   .replace('{{WIRE_SECTION}}', () => wireNote)
-  .replace('{{ARTICLE_PAGES}}', () => pages);
+  .replace('{{ARTICLE_PAGES}}', () => pages + (wirePages ? '\n\n' + wirePages : ''));
 // the static radio row keeps ref "07" in the template — renumber it after the stories
 out = out.replace(/(<div class="work-row" onclick="show\('radio'\)">\s*<span class="ref">)\d+(<\/span>)/, `$1${radioRef}$2`);
 
