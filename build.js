@@ -151,7 +151,7 @@ ${wire.items.map((item, i) => {
           <div>
             <h3><a href="${esc(item.url)}" target="_blank" rel="noopener">${esc(item.title)}</a></h3>
             ${item.summary ? `<p>${esc(item.summary)}</p>` : ''}
-${shot}            <p class="credit">${item.summary_is_ours ? `As ${esc(item.source)} reported` : esc(item.source)} · <a href="${esc(item.url)}" target="_blank" rel="noopener">Read the full story</a></p>
+${shot}            <p class="credit">${item.summary_is_ours ? `As ${esc(item.source)} reported` : esc(item.source)}${item.corroboration > 1 ? ` · Covered by ${item.corroboration} outlets` : ''} · <a href="${esc(item.url)}" target="_blank" rel="noopener">Read the full story</a></p>
           </div>
         </div>`;
   }).join('\n\n')}

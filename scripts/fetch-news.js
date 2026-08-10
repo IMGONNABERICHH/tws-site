@@ -27,6 +27,8 @@ const FEEDS = [
   { name: 'NPR Music',       url: 'https://feeds.npr.org/1039/rss.xml' },
   { name: 'BrooklynVegan',   url: 'https://www.brooklynvegan.com/feed/' },
   { name: 'Deadline',        url: 'https://deadline.com/feed/' },
+  { name: 'Hollywood Reporter', url: 'https://www.hollywoodreporter.com/feed/' },
+  { name: 'Variety',         url: 'https://variety.com/feed/' },
 ];
 
 const WINDOW_HOURS = 24;       // how far back a story can be and still be "today"
@@ -109,29 +111,75 @@ function parseFeed(xml, source) {
 }
 
 // ── selection ──
-const normalize = title => title.toLowerCase().replace(/[^a-z0-9 ]/g, '').replace(/\s+/g, ' ').trim();
+// "Breaking" is not the same as "newest". A story several outlets ran in the
+// same few hours is a bigger story than whatever happened to publish last, so
+// items are clustered across sources and ranked on how many picked it up.
+const STOPWORDS = new Set(['the','a','an','and','or','of','for','on','in','at','to','with','his','her','their','its','new','says','said','is','are','was','were','from','how','why','what','this','that','has','have','had','will','be','by','as','after','over','into','out','up','down','more','than','who','you','your','it']);
 
-function select(items, hours) {
+const keyWords = title => new Set(
+  title.toLowerCase()
+    .normalize('NFD').replace(/\p{Diacritic}/gu, '')   // Cuarón and Cuaron are one name
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .split(/\s+/)
+    .filter(w => w.length > 2 && !STOPWORDS.has(w)));
+
+function overlap(a, b) {
+  let shared = 0;
+  for (const w of a) if (b.has(w)) shared++;
+  return { shared, ratio: shared / Math.min(a.size, b.size) };
+}
+
+// roundups and explainers are not breaking news, whatever their timestamp
+const ROUNDUP = /\b(best|every|everything|all the|ranked|so far|guide|roundup|list of|top \d+|things to|watch:|recap|review|explained|here's what|we know)\b/i;
+
+function rank(items, hours) {
   const cutoff = Date.now() - hours * 3600 * 1000;
-  const seen = new Set();
-  const perSource = {};
-  const picked = [];
-
   const fresh = items
     .filter(i => i.published_at && new Date(i.published_at).getTime() >= cutoff)
-    .sort((a, b) => new Date(b.published_at) - new Date(a.published_at));
+    .sort((a, b) => new Date(a.published_at) - new Date(b.published_at));
 
+  // group the same story as told by different outlets
+  const clusters = [];
   for (const item of fresh) {
-    const key = normalize(item.title);
-    if (!key || seen.has(key)) continue;
-    // same story, different outlet — first five words are usually enough to tell
-    const stem = key.split(' ').slice(0, 5).join(' ');
-    if ([...seen].some(k => k.startsWith(stem))) continue;
-    if ((perSource[item.source] || 0) >= MAX_PER_SOURCE) continue;
+    const words = keyWords(item.title);
+    // both tests must pass: two short headlines can share a common word pair
+    // by accident ("Artists First" vs "First Artists") and merge two unrelated
+    // stories, which would then look corroborated
+    const home = clusters.find(c => {
+      const o = overlap(words, c.words);
+      return o.shared >= 3 && o.ratio >= 0.45;
+    });
+    if (home) {
+      home.items.push(item);
+      home.sources.add(item.source);
+    } else {
+      clusters.push({ words, items: [item], sources: new Set([item.source]) });
+    }
+  }
 
-    seen.add(key);
-    perSource[item.source] = (perSource[item.source] || 0) + 1;
-    picked.push(item);
+  const now = Date.now();
+  for (const c of clusters) {
+    // the outlet that published first is the one that broke it
+    const lead = c.items[0];
+    const newest = c.items[c.items.length - 1];
+    const ageHours = (now - new Date(newest.published_at).getTime()) / 3600000;
+    const corroboration = c.sources.size;
+    c.lead = lead;
+    c.corroboration = corroboration;
+    c.score =
+      1.7 * Math.log2(1 + corroboration)          // how many outlets ran it
+      + Math.max(0, 1 - ageHours / hours)          // how fresh it still is
+      - (ROUNDUP.test(lead.title) ? 0.55 : 0);     // not breaking news
+  }
+
+  clusters.sort((a, b) => b.score - a.score);
+
+  const perSource = {};
+  const picked = [];
+  for (const c of clusters) {
+    if ((perSource[c.lead.source] || 0) >= MAX_PER_SOURCE) continue;
+    perSource[c.lead.source] = (perSource[c.lead.source] || 0) + 1;
+    picked.push({ ...c.lead, corroboration: c.corroboration });
     if (picked.length >= MAX_ITEMS) break;
   }
   return picked;
@@ -164,17 +212,19 @@ function summaryLine(blurb) {
 // With an ANTHROPIC_API_KEY the brief is rewritten in TWS's voice. Without one
 // — or if the API is unreachable — it falls back to each outlet's own line, so
 // the brief always publishes.
-const SYSTEM = `You write The Wire, the daily music and culture brief at TWS, an independent Los Angeles publication.
+const SYSTEM = `You write The Wire, the daily entertainment brief at TWS, an independent Los Angeles publication covering music, film, TV and the culture around them.
 
 For each headline you get the outlet's own summary text. Write one or two sentences in TWS's voice: direct, specific, no hype, no filler openers like "In a surprising move" or "Music fans everywhere".
+
+Lead with what is new. The reader has the headline already — your job is the fact it leaves out: what was announced, who is involved, when it lands, what changed. Names, dates, numbers and titles are what make a brief worth reading; put them first and drop the throat-clearing.
 
 Rules:
 - Use only the headline and summary text provided. If they do not say something, do not write it.
 - Never invent quotes, dates, chart positions, sales figures, or names that are not in the source text.
 - Rewrite in your own words. Do not lift the outlet's phrasing.
-- Do not repeat the headline verbatim — add what the headline leaves out.
-- If the source text is thin, write a shorter summary rather than padding it.
-- No editorialising, no sign-offs. Just the news.
+- Do not repeat the headline verbatim.
+- If the source text is thin, write one short sentence rather than padding it.
+- No editorialising, no sign-offs, no "stay tuned". Just the news.
 - Plain sentences. No markdown, no emoji.
 
 Also name the main person or group the story is about, exactly as it would title a Wikipedia article, or null if the story is not about one.`;
@@ -358,10 +408,10 @@ async function findPhoto(item) {
   const all = (await Promise.all(FEEDS.map(fetchFeed))).flat();
   console.log(`Found ${all.length} entries.`);
 
-  let picked = select(all, WINDOW_HOURS);
+  let picked = rank(all, WINDOW_HOURS);
   if (picked.length < MIN_ITEMS) {
     console.log(`Only ${picked.length} in the last ${WINDOW_HOURS}h — widening to ${FALLBACK_HOURS}h.`);
-    picked = select(all, FALLBACK_HOURS);
+    picked = rank(all, FALLBACK_HOURS);
   }
 
   if (!picked.length) {
@@ -384,8 +434,9 @@ async function findPhoto(item) {
     dateline: new Date().toLocaleDateString('en-US', {
       timeZone: 'America/Los_Angeles', month: 'long', day: 'numeric', year: 'numeric',
     }),
-    items: picked.map(({ title, url, source, published_at, blurb, rewritten, photo }) => ({
+    items: picked.map(({ title, url, source, published_at, blurb, rewritten, photo, corroboration }) => ({
       title, url, source, published_at,
+      corroboration: corroboration || 1,
       summary: rewritten || summaryLine(blurb),
       // the outlet's own line is theirs; a rewrite is ours
       summary_is_ours: Boolean(rewritten),
