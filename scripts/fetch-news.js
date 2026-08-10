@@ -216,7 +216,7 @@ function summaryLine(blurb) {
 // the brief always publishes.
 const SYSTEM = `You write for The Wire, the daily entertainment desk at TWS, an independent Los Angeles publication covering music, film, TV and the culture around them.
 
-You are given a headline, the outlet that reported it, and source text from that report. Write TWS's own article on the story: four to six short paragraphs, in TWS's voice — direct, specific, unhurried, no hype.
+You are given a headline, the outlet that reported it, and source text from that report. Write TWS's own article on the story as an array of paragraphs: four to six of them, each a real paragraph of two to four sentences, in TWS's voice — direct, specific, unhurried, no hype. Aim for 250 to 400 words in total. One long block is not an article; break the story into paragraphs that each do one job.
 
 How to write it:
 - Open with what happened and who it involves. The first paragraph should stand on its own as the news.
@@ -226,9 +226,9 @@ How to write it:
 
 Hard rules:
 - Every fact must come from the source text. If it is not there, it does not go in the article.
-- Never invent quotes, dates, figures, titles, or names. If the source text is thin, write three paragraphs rather than padding with invention.
+- Never invent quotes, dates, figures, titles, or names. If the source text is genuinely thin, write two or three paragraphs rather than padding with invention — short and true beats long and made up.
 - Write it fresh in your own sentences and structure. Do not follow the source's phrasing, sentence order, or turns of phrase. If a quote is used, keep it exact, in quotation marks, and say who said it.
-- No markdown, no headings, no emoji. Separate paragraphs with a blank line.
+- No markdown, no headings, no emoji. Return each paragraph as its own string in the array.
 
 Also name the main person or group the story is about, exactly as it would title a Wikipedia article, or null if the story is not about one.`;
 
@@ -247,7 +247,7 @@ async function rewrite(items) {
       max_tokens: 16000,
       system: SYSTEM,
       output_config: {
-        effort: 'low',
+        effort: 'medium',
         format: {
           type: 'json_schema',
           schema: {
@@ -259,10 +259,10 @@ async function rewrite(items) {
                   type: 'object',
                   properties: {
                     index: { type: 'integer' },
-                    summary: { type: 'string' },
+                    paragraphs: { type: 'array', items: { type: 'string' } },
                     subject: { type: ['string', 'null'] },
                   },
-                  required: ['index', 'summary', 'subject'],
+                  required: ['index', 'paragraphs', 'subject'],
                   additionalProperties: false,
                 },
               },
@@ -293,9 +293,10 @@ async function rewrite(items) {
   }
   try {
     const text = response.content.find(b => b.type === 'text');
-    for (const { index, summary, subject } of JSON.parse(text.text).summaries) {
+    for (const { index, paragraphs, subject } of JSON.parse(text.text).summaries) {
       if (!items[index]) continue;
-      if (summary) items[index].rewritten = summary.trim();
+      const body = (paragraphs || []).map(t => t.trim()).filter(Boolean);
+      if (body.length) items[index].rewritten = body.join('\n\n');
       if (subject) items[index].subject = subject.trim();
     }
     console.log(`  Wrote ${items.filter(i => i.rewritten).length} articles in TWS's voice.`);
