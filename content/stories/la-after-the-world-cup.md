@@ -5,7 +5,7 @@ date: 2026-07-20
 photos:
   - /images/uploads/img_1992.jpg
 ---
-A just hosted a World Cup. Eight matches. 560,000 people through the gates. Fan zones, community events, the whole thing. By the numbers they're pushing, it went well.
+LA just hosted a World Cup. Eight matches. 560,000 people through the gates. Fan zones, community events, the whole thing. By the numbers they're pushing, it went well.
 
 But the real question is what happens after.
 
