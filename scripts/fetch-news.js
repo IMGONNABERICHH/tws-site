@@ -106,6 +106,8 @@ function parseFeed(xml, source) {
       published_at: date && !isNaN(date) ? date.toISOString() : null,
       blurb: (tag(block, 'description') || tag(block, 'summary') || tag(block, 'content'))
         .slice(0, 600),
+      // some publishers syndicate the whole article; that is theirs to offer
+      syndicated: tag(block, 'content:encoded'),
     };
   }).filter(item => item.title && item.url);
 }
@@ -212,20 +214,21 @@ function summaryLine(blurb) {
 // With an ANTHROPIC_API_KEY the brief is rewritten in TWS's voice. Without one
 // — or if the API is unreachable — it falls back to each outlet's own line, so
 // the brief always publishes.
-const SYSTEM = `You write The Wire, the daily entertainment brief at TWS, an independent Los Angeles publication covering music, film, TV and the culture around them.
+const SYSTEM = `You write for The Wire, the daily entertainment desk at TWS, an independent Los Angeles publication covering music, film, TV and the culture around them.
 
-For each headline you get the outlet's own summary text. Write one or two sentences in TWS's voice: direct, specific, no hype, no filler openers like "In a surprising move" or "Music fans everywhere".
+You are given a headline, the outlet that reported it, and source text from that report. Write TWS's own article on the story: four to six short paragraphs, in TWS's voice — direct, specific, unhurried, no hype.
 
-Write three or four sentences — enough that a reader gets the whole story from you and only follows the link if they want more. Lead with what is new: what was announced, who is involved, when it lands, what changed. Names, dates, numbers and titles are what make it worth reading; put them first and drop the throat-clearing. Then give the context the source text supports — the background, the previous release, the tour it follows, whatever makes the news make sense.
+How to write it:
+- Open with what happened and who it involves. The first paragraph should stand on its own as the news.
+- Then the detail that makes it matter: dates, titles, numbers, names, what it follows, what comes next.
+- Close on where things stand, not on a flourish. No "stay tuned", no "time will tell", no rhetorical questions.
+- Attribute the reporting once, naturally, in the body — "Billboard reported", "according to Deadline" — where a reader would want to know who found this out.
 
-Rules:
-- Use only the headline and summary text provided. If they do not say something, do not write it.
-- Never invent quotes, dates, chart positions, sales figures, or names that are not in the source text.
-- Rewrite in your own words. Do not lift the outlet's phrasing.
-- Do not repeat the headline verbatim.
-- If the source text is thin, write two sentences rather than padding to four. Never invent detail to fill space.
-- No editorialising, no sign-offs, no "stay tuned". Just the news.
-- Plain sentences. No markdown, no emoji.
+Hard rules:
+- Every fact must come from the source text. If it is not there, it does not go in the article.
+- Never invent quotes, dates, figures, titles, or names. If the source text is thin, write three paragraphs rather than padding with invention.
+- Write it fresh in your own sentences and structure. Do not follow the source's phrasing, sentence order, or turns of phrase. If a quote is used, keep it exact, in quotation marks, and say who said it.
+- No markdown, no headings, no emoji. Separate paragraphs with a blank line.
 
 Also name the main person or group the story is about, exactly as it would title a Wikipedia article, or null if the story is not about one.`;
 
@@ -271,11 +274,11 @@ async function rewrite(items) {
       },
       messages: [{
         role: 'user',
-        content: `Write a summary for each of these ${items.length} headlines. Return one entry per index.\n\n`
+        content: `Write TWS's article for each of these ${items.length} stories. Return one entry per index.\n\n`
           + JSON.stringify(items.map((it, i) => ({
-              index: i, headline: it.title, source: it.source,
-              source_text: it.blurb || '(none provided)',
-            }), null, 2)),
+              index: i, headline: it.title, reported_by: it.source,
+              source_text: it.article || it.blurb || '(none provided)',
+            })), null, 2),
       }],
     });
   } catch (err) {
@@ -295,9 +298,59 @@ async function rewrite(items) {
       if (summary) items[index].rewritten = summary.trim();
       if (subject) items[index].subject = subject.trim();
     }
-    console.log(`  Rewrote ${items.filter(i => i.rewritten).length} summaries in TWS's voice.`);
+    console.log(`  Wrote ${items.filter(i => i.rewritten).length} articles in TWS's voice.`);
   } catch (err) {
     console.warn(`  Could not read the rewrites (${err.message}) — using the outlets' lines.`);
+  }
+}
+
+// ── source text ──
+// A rewrite needs facts. Publishers who put the article in the feed have
+// offered it; for the rest we read the page, but only where robots.txt allows.
+const robotsCache = new Map();
+
+async function robotsAllows(url) {
+  const u = new URL(url);
+  if (!robotsCache.has(u.origin)) {
+    let rules = [];
+    try {
+      const r = await fetch(u.origin + '/robots.txt', { headers: WIKI_UA });
+      if (r.ok) {
+        const txt = await r.text();
+        let applies = false;
+        for (const line of txt.split(/\r?\n/)) {
+          const m = line.match(/^\s*(user-agent|disallow)\s*:\s*(.*?)\s*(?:#.*)?$/i);
+          if (!m) continue;
+          if (m[1].toLowerCase() === 'user-agent') applies = m[2] === '*';
+          else if (applies && m[2]) rules.push(m[2]);
+        }
+      }
+    } catch { /* no robots.txt reachable — treat as unrestricted */ }
+    robotsCache.set(u.origin, rules);
+  }
+  const path = u.pathname + u.search;
+  return !robotsCache.get(u.origin).some(rule => path.startsWith(rule));
+}
+
+function readableText(html) {
+  const body = html.replace(/<(script|style|noscript|figure|aside|nav|header|footer)[\s\S]*?<\/\1>/gi, ' ');
+  const paras = [...body.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/gi)]
+    .map(m => m[1].replace(/<[^>]+>/g, ' ').replace(/&[a-z]+;|&#\d+;/gi, ' ').replace(/\s+/g, ' ').trim())
+    .filter(t => t.length > 60 && !/^(share|advertisement|sign up|subscribe|related|read more)/i.test(t));
+  return paras.join('\n\n');
+}
+
+async function sourceText(item) {
+  const syndicated = (item.syndicated || '').replace(/\s+/g, ' ').trim();
+  if (syndicated.length > 700) return syndicated.slice(0, 6000);
+  try {
+    if (!(await robotsAllows(item.url))) return item.blurb || '';
+    const r = await fetch(item.url, { headers: WIKI_UA, signal: AbortSignal.timeout(20000) });
+    if (!r.ok) return item.blurb || '';
+    const text = readableText(await r.text());
+    return text.length > (item.blurb || '').length ? text.slice(0, 6000) : (item.blurb || '');
+  } catch {
+    return item.blurb || '';
   }
 }
 
@@ -418,6 +471,13 @@ async function findPhoto(item) {
     console.error('No headlines found. Leaving the existing brief in place.');
     process.exit(1);
   }
+
+  console.log('Reading the source reports…');
+  for (const item of picked) {
+    item.article = await sourceText(item);
+  }
+  const gotFull = picked.filter(i => (i.article || '').length > 700).length;
+  console.log(`  Full text for ${gotFull} of ${picked.length}.`);
 
   await rewrite(picked);
 

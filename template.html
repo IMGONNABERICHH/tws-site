@@ -646,35 +646,6 @@
     .wire-item { cursor: pointer; }
     .wire-item:hover h3 { color: var(--blue); }
 
-    /* ─── FEED TOGGLE ─── */
-    .feed-toggle {
-      display: flex;
-      gap: 0;
-      margin: -12px 0 26px;
-      border: 1px dotted var(--faint);
-      width: fit-content;
-    }
-
-    .feed-toggle span {
-      font-family: var(--mono);
-      font-size: 10px;
-      letter-spacing: 0.24em;
-      text-transform: uppercase;
-      color: var(--dim);
-      padding: 9px 20px;
-      cursor: pointer;
-      user-select: none;
-      transition: background 0.15s, color 0.15s;
-    }
-
-    .feed-toggle span:hover { color: var(--white); }
-    .feed-toggle span.on { background: var(--white); color: var(--black); }
-
-    /* one set at a time — the other is hidden, not removed */
-    body[data-feed="tws"] .feed-wire,
-    body[data-feed="wire"] .feed-tws { display: none; }
-    body[data-feed="tws"] .wire-note { display: none; }
-
     .wire-shot { margin: 6px 0 16px; max-width: 360px; }
 
     .wire-shot img {
@@ -772,7 +743,6 @@
 
       <div class="work wrap" id="work-anchor">
         <p class="section-label"><span>Coverage</span><span>REF TWS-001</span></p>
-{{FEED_TOGGLE}}
 
         {{WORK_ROWS}}
 
@@ -856,23 +826,6 @@
       document.getElementById(tab).classList.add('active');
       window.scrollTo({ top: 0, behavior: 'instant' });
     }
-
-    // feed toggle — TWS reporting or the daily brief, never both at once
-    function feed(which) {
-      document.body.dataset.feed = which;
-      document.querySelectorAll('.feed-toggle span').forEach(s =>
-        s.classList.toggle('on', s.dataset.feed === which));
-      try { localStorage.setItem('tws-feed', which); } catch (e) {}
-    }
-    // open on TWS's own reporting, but remember the reader's choice
-    (function () {
-      let saved = 'tws';
-      try { saved = localStorage.getItem('tws-feed') || 'tws'; } catch (e) {}
-      document.body.dataset.feed = saved;
-      document.addEventListener('DOMContentLoaded', () => {
-        if (document.querySelector('.feed-toggle')) feed(saved);
-      });
-    })();
 
     // hero slideshow — cross-fades TWS photography behind the wordmark
     (function () {
