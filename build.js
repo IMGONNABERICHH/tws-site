@@ -122,9 +122,9 @@ const wireTab = '';
 const storyEntries = stories.map(s => ({
   date: new Date(s.date || 0),
   render: n => {
-    const meta = ['TWS', s.kicker, s.location, s.video ? 'Video' : '', (s.photos && s.photos.length) ? 'Photos' : '']
+    const meta = [s.kicker, s.location, s.video ? 'Video' : '', (s.photos && s.photos.length) ? 'Photos' : '']
       .filter(Boolean).map(x => `<span>${esc(x)}</span>`).join('');
-    return `        <div class="work-row" onclick="show('a-${s.slug}')">
+    return `        <div class="work-row feed-tws" onclick="show('a-${s.slug}')">
           <span class="ref">${pad(n)}</span>
           <div>
             <h3>${esc(s.title)}<span class="block">▓</span></h3>
@@ -143,7 +143,7 @@ const wireEntries = (wire ? wire.items : []).map(item => ({
               <img src="${esc(p.src)}" alt="${esc(p.subject)}" loading="lazy">
               <figcaption>Photo: ${esc(p.author)} · ${esc(p.licence)} · <a href="${esc(p.page)}" target="_blank" rel="noopener">Wikimedia Commons</a></figcaption>
             </figure>\n` : '';
-    return `        <div class="wire-item${p ? ' has-shot' : ''}">
+    return `        <div class="wire-item feed-wire${p ? ' has-shot' : ''}">
           <span class="ref">${pad(n)}</span>
           <div>
             <h3><a href="${esc(item.url)}" target="_blank" rel="noopener">${esc(item.title)}</a></h3>
@@ -154,12 +154,17 @@ ${shot}            <p class="credit">${item.summary_is_ours ? `As ${esc(item.sou
   },
 }));
 
-const rows = [...wireEntries, ...storyEntries]
-  .sort((a, b) => b.date - a.date)
-  .map((entry, i) => entry.render(i + 1))
-  .join('\n\n');
+const rows = [
+  ...storyEntries.sort((a, b) => b.date - a.date).map((e, i) => e.render(i + 1)),
+  ...wireEntries.sort((a, b) => b.date - a.date).map((e, i) => e.render(i + 1)),
+].join('\n\n');
 
-const radioRef = pad(stories.length + (wire ? wire.items.length : 0) + 1);
+const radioRef = pad(stories.length + 1);
+
+const feedToggle = wire ? `        <div class="feed-toggle">
+          <span class="on" data-feed="tws" onclick="feed('tws')">TWS</span>
+          <span data-feed="wire" onclick="feed('wire')">The Wire</span>
+        </div>` : '';
 
 const wireNote = wire ? `        <p class="wire-note">
           Items credited to another publication are collected from that outlet's
@@ -190,6 +195,7 @@ const pages = stories.map(s => {
 // replacements go through functions so a "$&" in a headline stays literal
 let out = fs.readFileSync(path.join(ROOT, 'template.html'), 'utf8')
   .replace('{{HERO_SLIDES}}', () => heroSlides)
+  .replace('{{FEED_TOGGLE}}', () => feedToggle)
   .replace('{{WIRE_TAB}}', () => wireTab)
   .replace('{{WORK_ROWS}}', () => rows)
   .replace('{{WIRE_SECTION}}', () => wireNote)
