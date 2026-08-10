@@ -160,6 +160,198 @@ function summaryLine(blurb) {
   return text.slice(0, text.lastIndexOf(' ', 200)).trim() + '…';
 }
 
+// ── TWS-voice summaries (optional) ──
+// With an ANTHROPIC_API_KEY the brief is rewritten in TWS's voice. Without one
+// — or if the API is unreachable — it falls back to each outlet's own line, so
+// the brief always publishes.
+const SYSTEM = `You write The Wire, the daily music and culture brief at TWS, an independent Los Angeles publication.
+
+For each headline you get the outlet's own summary text. Write one or two sentences in TWS's voice: direct, specific, no hype, no filler openers like "In a surprising move" or "Music fans everywhere".
+
+Rules:
+- Use only the headline and summary text provided. If they do not say something, do not write it.
+- Never invent quotes, dates, chart positions, sales figures, or names that are not in the source text.
+- Rewrite in your own words. Do not lift the outlet's phrasing.
+- Do not repeat the headline verbatim — add what the headline leaves out.
+- If the source text is thin, write a shorter summary rather than padding it.
+- No editorialising, no sign-offs. Just the news.
+- Plain sentences. No markdown, no emoji.
+
+Also name the main person or group the story is about, exactly as it would title a Wikipedia article, or null if the story is not about one.`;
+
+async function rewrite(items) {
+  if (!process.env.ANTHROPIC_API_KEY) {
+    console.warn('  No ANTHROPIC_API_KEY — using each outlet\'s own summary line.');
+    return;
+  }
+  const apiKey = process.env.ANTHROPIC_API_KEY.replace(/\s+/g, '');
+  let response;
+  try {
+    const { default: Anthropic } = await import('@anthropic-ai/sdk');
+    const client = new Anthropic({ apiKey });
+    response = await client.messages.create({
+      model: 'claude-opus-5',
+      max_tokens: 16000,
+      system: SYSTEM,
+      output_config: {
+        effort: 'low',
+        format: {
+          type: 'json_schema',
+          schema: {
+            type: 'object',
+            properties: {
+              summaries: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    index: { type: 'integer' },
+                    summary: { type: 'string' },
+                    subject: { type: ['string', 'null'] },
+                  },
+                  required: ['index', 'summary', 'subject'],
+                  additionalProperties: false,
+                },
+              },
+            },
+            required: ['summaries'],
+            additionalProperties: false,
+          },
+        },
+      },
+      messages: [{
+        role: 'user',
+        content: `Write a summary for each of these ${items.length} headlines. Return one entry per index.\n\n`
+          + JSON.stringify(items.map((it, i) => ({
+              index: i, headline: it.title, source: it.source,
+              source_text: it.blurb || '(none provided)',
+            }), null, 2)),
+      }],
+    });
+  } catch (err) {
+    console.warn(`  Rewrites unavailable (${String(err.message).split('\n')[0]})`);
+    console.warn('  Falling back to each outlet\'s own summary line.');
+    return;
+  }
+
+  if (response.stop_reason === 'refusal') {
+    console.warn('  Rewrites declined by the model — using the outlets\' lines.');
+    return;
+  }
+  try {
+    const text = response.content.find(b => b.type === 'text');
+    for (const { index, summary, subject } of JSON.parse(text.text).summaries) {
+      if (!items[index]) continue;
+      if (summary) items[index].rewritten = summary.trim();
+      if (subject) items[index].subject = subject.trim();
+    }
+    console.log(`  Rewrote ${items.filter(i => i.rewritten).length} summaries in TWS's voice.`);
+  } catch (err) {
+    console.warn(`  Could not read the rewrites (${err.message}) — using the outlets' lines.`);
+  }
+}
+
+// ── photos ──
+// Wikipedia lead images of the people involved. Free to use, but every licence
+// requires the photographer and licence named, so we carry both and show them.
+const WIKI_UA = { 'user-agent': 'TWS-TheWire/1.0 (+https://tws.7-langes.com; raven.curry@7langes.la)' };
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+// Wikimedia rate-limits anonymous callers, so space the requests out, back off
+// once on a 429, and never ask the same question twice in a run.
+let lastCall = 0;
+const wikiCache = new Map();
+async function wikiFetch(url) {
+  const wait = 300 - (Date.now() - lastCall);
+  if (wait > 0) await sleep(wait);
+  lastCall = Date.now();
+  let r = await fetch(url, { headers: WIKI_UA });
+  if (r.status === 429) {
+    await sleep(3000);
+    lastCall = Date.now();
+    r = await fetch(url, { headers: WIKI_UA });
+  }
+  return r;
+}
+const STOP = new Set(['the','a','an','and','of','for','on','in','at','to','with','his','her','its','new','says','said','is','are','from','how','why','what','everything','we','learned','best','first','top','this','that','he','she','they','plus','watch','listen']);
+const PERSONISH = /(singer|rapper|band|musician|actor|actress|songwriter|group|producer|dj|duo|artist|comedian|drummer|guitarist|composer|record label)/i;
+
+// name-shaped phrases from a headline, longest first — possessives stripped
+// before quote marks, or "Hargitay's" turns into "Hargitays" and never matches
+function nameCandidates(title) {
+  const toks = title
+    .replace(/[\u2019']s\b/g, '')
+    .replace(/[\u201c\u201d\u2018\u2019"()]/g, '')
+    .split(/\s+/).filter(Boolean);
+  const out = [];
+  for (const n of [3, 2, 1]) {
+    for (let i = 0; i + n <= toks.length; i++) {
+      const run = toks.slice(i, i + n);
+      if (STOP.has(run[0].toLowerCase())) continue;
+      const phrase = run.join(' ').replace(/[:,.\u2014\u2013|]+$/, '').trim();
+      if (phrase.length > 2 && !out.includes(phrase)) out.push(phrase);
+    }
+  }
+  return out.slice(0, 10);
+}
+
+async function wikiSummary(phrase) {
+  if (wikiCache.has(phrase)) return wikiCache.get(phrase);
+  const miss = v => { wikiCache.set(phrase, v); return v; };
+  try {
+    const r = await wikiFetch(
+      'https://en.wikipedia.org/api/rest_v1/page/summary/' + encodeURIComponent(phrase.replace(/ /g, '_')));
+    if (!r.ok) return null;
+    const d = await r.json();
+    // "standard" rules out disambiguation pages, which are usually wrong guesses
+    if (d.type !== 'standard' || !d.thumbnail) return miss(null);
+    if (!PERSONISH.test((d.description || '') + ' ' + (d.extract || '').slice(0, 200))) return miss(null);
+    return miss(d);
+  } catch { return miss(null); }
+}
+
+// the licence lives on the Commons file page, not in the summary response
+async function licenceFor(imageUrl) {
+  // thumbnails now carry tracking params — strip them before deriving the name
+  const file = decodeURIComponent(
+    imageUrl.split('?')[0].split('/').pop().replace(/^\d+px-/, ''));
+  try {
+    const r = await wikiFetch('https://commons.wikimedia.org/w/api.php?action=query&titles='
+      + encodeURIComponent('File:' + file)
+      + '&prop=imageinfo&iiprop=extmetadata&format=json');
+    if (!r.ok) return null;
+    const pages = (await r.json()).query?.pages || {};
+    const info = Object.values(pages)[0]?.imageinfo?.[0]?.extmetadata;
+    if (!info) return null;
+    const strip = v => (v || '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+    return {
+      author: strip(info.Artist?.value).slice(0, 80) || 'Unknown',
+      licence: strip(info.LicenseShortName?.value) || 'see Commons',
+      page: 'https://commons.wikimedia.org/wiki/File:' + encodeURIComponent(file),
+    };
+  } catch { return null; }
+}
+
+async function findPhoto(item) {
+  const tried = item.subject ? [item.subject, ...nameCandidates(item.title)] : nameCandidates(item.title);
+  for (const phrase of tried) {
+    const page = await wikiSummary(phrase);
+    if (!page) continue;
+    const lic = await licenceFor(page.thumbnail.source);
+    if (!lic) continue;
+    return {
+      // use the size Wikimedia actually serves — asking for a wider thumb than
+      // the source image 400s, and it varies per file
+      src: page.thumbnail.source.split('?')[0],
+      subject: page.title,
+      author: lic.author,
+      licence: lic.licence,
+      page: lic.page,
+    };
+  }
+  return null;
+}
+
 // ── main ──
 (async () => {
   console.log(`Reading ${FEEDS.length} feeds…`);
@@ -177,13 +369,28 @@ function summaryLine(blurb) {
     process.exit(1);
   }
 
+  await rewrite(picked);
+
+  console.log('Looking for photos…');
+  let withPhoto = 0;
+  for (const item of picked) {
+    item.photo = await findPhoto(item);
+    if (item.photo) withPhoto++;
+  }
+  console.log(`  Found ${withPhoto} of ${picked.length}.`);
+
   const brief = {
     generated_at: new Date().toISOString(),
     dateline: new Date().toLocaleDateString('en-US', {
       timeZone: 'America/Los_Angeles', month: 'long', day: 'numeric', year: 'numeric',
     }),
-    items: picked.map(({ title, url, source, published_at, blurb }) =>
-      ({ title, url, source, published_at, summary: summaryLine(blurb) })),
+    items: picked.map(({ title, url, source, published_at, blurb, rewritten, photo }) => ({
+      title, url, source, published_at,
+      summary: rewritten || summaryLine(blurb),
+      // the outlet's own line is theirs; a rewrite is ours
+      summary_is_ours: Boolean(rewritten),
+      photo: photo || null,
+    })),
   };
 
   fs.mkdirSync(OUT_DIR, { recursive: true });

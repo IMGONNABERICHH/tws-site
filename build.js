@@ -155,14 +155,22 @@ const wirePage = wire ? `    <div class="page" id="wire">
           <p class="stamp">${esc(wire.dateline || '')} · ${wire.items.length} headlines · Music &amp; culture</p>
         </div>
 
-${wire.items.map((item, i) => `        <div class="wire-item">
+${wire.items.map((item, i) => {
+    const p = item.photo;
+    // every licence requires the photographer and the licence named
+    const shot = p ? `            <figure class="wire-shot">
+              <img src="${esc(p.src)}" alt="${esc(p.subject)}" loading="lazy">
+              <figcaption>Photo: ${esc(p.author)} · ${esc(p.licence)} · <a href="${esc(p.page)}" target="_blank" rel="noopener">Wikimedia Commons</a></figcaption>
+            </figure>\n` : '';
+    return `        <div class="wire-item${p ? ' has-shot' : ''}">
           <span class="ref">${pad(i + 1)}</span>
           <div>
             <h3><a href="${esc(item.url)}" target="_blank" rel="noopener">${esc(item.title)}</a></h3>
             ${item.summary ? `<p>${esc(item.summary)}</p>` : ''}
-            <p class="credit">${esc(item.source)} · <a href="${esc(item.url)}" target="_blank" rel="noopener">Read the full story</a></p>
+${shot}            <p class="credit">${item.summary_is_ours ? `As ${esc(item.source)} reported` : esc(item.source)} · <a href="${esc(item.url)}" target="_blank" rel="noopener">Read the full story</a></p>
           </div>
-        </div>`).join('\n\n')}
+        </div>`;
+  }).join('\n\n')}
 
         <p class="wire-note">
           The Wire collects the day's music and culture headlines from other publications.

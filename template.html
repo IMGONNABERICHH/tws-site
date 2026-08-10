@@ -612,6 +612,33 @@
       margin-bottom: 12px;
     }
 
+    .wire-shot { margin: 6px 0 16px; max-width: 360px; }
+
+    .wire-shot img {
+      width: 190px;
+      max-width: 100%;
+      display: block;
+      /* portraits and landscapes both land in the same tidy card */
+      aspect-ratio: 4 / 5;
+      object-fit: cover;
+      border: 1px dotted var(--faint);
+      padding: 5px;
+      filter: grayscale(0.25);
+    }
+
+    .wire-shot figcaption {
+      margin-top: 7px;
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(242,240,234,0.32);
+      line-height: 1.7;
+    }
+
+    .wire-shot figcaption a { color: inherit; text-decoration: none; border-bottom: 1px dotted var(--faint); }
+    .wire-shot figcaption a:hover { color: var(--blue); }
+
     .wire-item .credit {
       font-family: var(--mono);
       font-size: 10px;

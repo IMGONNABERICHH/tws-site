@@ -39,8 +39,15 @@ jobs:
         with:
           node-version: 22
 
+      - name: Install dependencies
+        if: steps.gate.outputs.run == 'true'
+        run: npm install --no-audit --no-fund
+
       - name: Gather the day's headlines
         if: steps.gate.outputs.run == 'true'
+        env:
+          # optional — without it the brief uses each outlet's own summary line
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: node scripts/fetch-news.js
 
       - name: Commit the brief
