@@ -6,7 +6,7 @@
   <title>TWS — Music & Culture, Los Angeles</title>
   <meta name="description" content="TWS is an independent music and culture publication based in Los Angeles. Live coverage, interviews, and radio from the ground up.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Doto:wght@500;700;900&family=DotGothic16&family=Fraunces:opsz,wght@9..144,700;9..144,900&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Space+Mono:ital@0;1&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Space+Mono:ital@0;1&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -16,11 +16,9 @@
       --dim: rgba(242,240,234,0.45);
       --faint: rgba(242,240,234,0.18);
       --blue: #2b3aff; /* TWS brand blue — The Winning Season */
-      --doto: 'Doto', monospace;
-      --pixel: 'DotGothic16', monospace;
       --mono: 'Space Mono', monospace;
       --text: 'Newsreader', Georgia, 'Times New Roman', serif; /* body copy */
-      --mast: 'Fraunces', Georgia, serif;                          /* the wordmark */
+      --display: 'Space Grotesk', system-ui, sans-serif;           /* headlines + wordmark */
     }
 
     ::selection { background: var(--white); color: var(--black); }
@@ -61,7 +59,7 @@
     }
 
     .nav-logo {
-      font-family: var(--mast);
+      font-family: var(--display);
       font-weight: 900;
       font-size: 24px;
       letter-spacing: 0.01em;
@@ -179,11 +177,12 @@
     }
 
     .hero h1 {
-      font-family: var(--mast);
+      font-family: var(--display);
       font-weight: 900;
-      font-size: clamp(96px, 20vw, 260px);
-      line-height: 0.86;
-      letter-spacing: -0.02em;
+      font-size: clamp(78px, 15vw, 190px);
+      line-height: 0.9;
+      letter-spacing: -0.045em;
+      font-weight: 700;
       user-select: none;
     }
 
@@ -202,7 +201,7 @@
 
     .hero .sub {
       margin-top: 30px;
-      font-family: var(--pixel);
+      font-family: var(--display);
       font-size: clamp(13px, 1.8vw, 18px);
       letter-spacing: 0.42em;
       text-transform: uppercase;
@@ -242,7 +241,7 @@
     .marquee-inner {
       display: inline-block;
       animation: scroll 28s linear infinite;
-      font-family: var(--pixel);
+      font-family: var(--display);
       font-size: 14px;
       letter-spacing: 0.3em;
       text-transform: uppercase;
@@ -256,7 +255,7 @@
     }
 
     /* ─── STORIES: MONKEYPAW ROWS ─── */
-    .work { padding: 90px 0 40px; }
+    .work { padding: 90px 30px 40px; }
 
     .section-label {
       font-family: var(--mono);
@@ -270,13 +269,13 @@
     }
 
     .work-row {
-      padding: 34px 0;
+      padding: 26px 0;
       border-bottom: 1px dotted var(--faint);
       cursor: pointer;
       display: grid;
-      grid-template-columns: 90px 1fr;
-      gap: 26px;
-      align-items: baseline;
+      grid-template-columns: 64px 220px 1fr;
+      gap: 22px;
+      align-items: start;
     }
 
     .work-row:first-of-type { border-top: 1px dotted var(--faint); }
@@ -292,19 +291,18 @@
     }
 
     .work-row h3 {
-      font-family: var(--doto);
-      font-weight: 700;
-      font-size: clamp(26px, 4.6vw, 58px);
-      line-height: 1.05;
-      text-transform: uppercase;
-      letter-spacing: 0.01em;
+      font-family: var(--display);
+      font-weight: 600;
+      font-size: clamp(20px, 2.3vw, 30px);
+      line-height: 1.22;
+      letter-spacing: -0.015em;
       transition: color 0.15s;
     }
 
     .work-row h3 .block { color: var(--blue); }
 
     .work-row .meta {
-      grid-column: 2;
+      grid-column: auto;
       display: flex;
       gap: 26px;
       margin-top: 10px;
@@ -315,9 +313,7 @@
       color: var(--dim);
     }
 
-    .work-row:hover { background: var(--white); }
-    .work-row:hover h3 { color: var(--black); }
-    .work-row:hover .meta, .work-row:hover .ref { color: rgba(7,7,7,0.6); border-color: rgba(7,7,7,0.3); }
+    .work-row:hover h3 { color: var(--blue); }
 
     /* ─── ARTICLE ─── */
     .article { max-width: 660px; margin: 0 auto; padding-top: 130px; }
@@ -347,11 +343,11 @@
     }
 
     .article h2 {
-      font-family: var(--doto);
-      font-weight: 900;
-      font-size: clamp(30px, 5vw, 54px);
-      line-height: 1.05;
-      text-transform: uppercase;
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: clamp(28px, 4vw, 46px);
+      line-height: 1.12;
+      letter-spacing: -0.025em;
       margin-bottom: 18px;
     }
 
@@ -376,13 +372,13 @@
     }
 
     .article .byline + p::first-letter {
-      font-family: var(--doto);
-      font-weight: 900;
-      font-size: 44px;
-      float: left;
-      line-height: 0.8;
-      padding: 6px 12px 0 0;
-      color: var(--blue);
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: 0px;
+      float: none;
+      line-height: inherit;
+      padding: 0;
+      color: inherit;
     }
 
     .embed {
@@ -410,7 +406,7 @@
     }
 
     .radio-head h2 {
-      font-family: var(--doto);
+      font-family: var(--display);
       font-weight: 900;
       font-size: clamp(44px, 9vw, 110px);
       line-height: 0.9;
@@ -454,7 +450,7 @@
     }
 
     .about h2 {
-      font-family: var(--doto);
+      font-family: var(--display);
       font-weight: 900;
       font-size: clamp(28px, 4.6vw, 50px);
       line-height: 1.05;
@@ -472,7 +468,7 @@
       margin: 44px 0;
       border: 1px solid var(--dim);
       padding: 30px 32px;
-      font-family: var(--pixel);
+      font-family: var(--display);
     }
 
     .spec-box .spec-title {
@@ -515,7 +511,7 @@
     }
 
     .foot-word {
-      font-family: var(--doto);
+      font-family: var(--display);
       font-weight: 900;
       font-size: clamp(60px, 14vw, 190px);
       line-height: 0.85;
@@ -574,7 +570,7 @@
     }
 
     .wire-head h2 {
-      font-family: var(--doto);
+      font-family: var(--display);
       font-weight: 900;
       font-size: clamp(30px, 5vw, 54px);
       line-height: 1.05;
@@ -591,12 +587,22 @@
     }
 
     .wire-item {
-      padding: 30px 0;
+      padding: 26px 0;
       border-bottom: 1px dotted var(--faint);
       display: grid;
-      grid-template-columns: 90px 1fr;
-      gap: 26px;
-      align-items: baseline;
+      grid-template-columns: 64px 220px 1fr;
+      gap: 22px;
+      align-items: start;
+    }
+
+    /* image beside the story, the way a news list reads */
+    @media (max-width: 700px) {
+      /* the reference number is a desktop flourish; on a phone the space is
+         better spent on the headline */
+      .work-row, .wire-item { grid-template-columns: 96px 1fr; gap: 14px; }
+      .work-row .ref, .wire-item .ref { display: none; }
+      .work-row h3, .wire-item h3 { font-size: 19px; line-height: 1.25; }
+      .wire-item p, .work-row p { font-size: 15.5px; line-height: 1.5; }
     }
 
     .wire-item .ref {
@@ -610,29 +616,25 @@
     }
 
     .wire-item h3 {
-      font-family: var(--pixel);
-      font-weight: 400;
-      font-size: clamp(19px, 2.5vw, 27px);
-      line-height: 1.25;
+      font-family: var(--display);
+      font-weight: 600;
+      font-size: clamp(20px, 2.3vw, 30px);
+      line-height: 1.22;
+      letter-spacing: -0.015em;
       margin-bottom: 10px;
     }
 
-    .wire-item h3 a { color: var(--white); text-decoration: none; }
-    .wire-item h3 a:hover { color: var(--blue); }
+    .wire-item:hover h3 { color: var(--blue); }
 
     .wire-item p {
       font-family: var(--text);
       font-size: 17px;
-      line-height: 1.6;
-      color: rgba(242,240,234,0.82);
-      margin-bottom: 12px;
-      max-width: 62ch;
+      line-height: 1.55;
+      color: rgba(242,240,234,0.78);
+      margin-bottom: 10px;
     }
 
-    .page[id^="w-"] .article h2 {
-      font-size: clamp(24px, 3.2vw, 38px);
-      text-transform: none;
-    }
+    .page[id^="w-"] .article h2 { font-size: clamp(26px, 3.4vw, 40px); }
 
     .source-line {
       margin-top: 38px;
@@ -663,18 +665,14 @@
     .wire-item { cursor: pointer; }
     .wire-item:hover h3 { color: var(--blue); }
 
-    .wire-shot { margin: 6px 0 16px; max-width: 360px; }
+    .wire-shot { margin: 4px 0 0; }
 
     .wire-shot img {
-      width: 190px;
-      max-width: 100%;
+      width: 100%;
       display: block;
-      /* portraits and landscapes both land in the same tidy card */
-      aspect-ratio: 4 / 5;
+      aspect-ratio: 3 / 2;
       object-fit: cover;
-      border: 1px dotted var(--faint);
-      padding: 5px;
-      filter: grayscale(0.25);
+      filter: grayscale(0.2);
     }
 
     .wire-shot figcaption {
@@ -715,9 +713,7 @@
 
     /* ─── RESPONSIVE ─── */
     @media (max-width: 760px) {
-      .work-row { grid-template-columns: 1fr; gap: 12px; }
-      .work-row .meta { grid-column: 1; flex-wrap: wrap; gap: 12px; }
-      .wire-item { grid-template-columns: 1fr; gap: 10px; }
+      .work-row .meta { flex-wrap: wrap; gap: 12px; }
       .radio-grid { grid-template-columns: 1fr; }
       /* four nav items have to clear the logo without wrapping */
       nav { padding: 16px 18px; }

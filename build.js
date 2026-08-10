@@ -117,12 +117,16 @@ const wireTab = '';
 const storyEntries = stories.map(s => ({
   date: new Date(s.date || 0),
   render: n => {
-    const meta = [s.kicker, s.location, s.video ? 'Video' : '', (s.photos && s.photos.length) ? 'Photos' : '']
+    const meta = [s.kicker, s.location, s.video ? 'Video' : '']
       .filter(Boolean).map(x => `<span>${esc(x)}</span>`).join('');
+    const thumb = (s.photos && s.photos.length)
+      ? `          <figure class="wire-shot"><img src="${esc(s.photos[0])}" alt="" loading="lazy"></figure>`
+      : '          <div class="wire-shot"></div>';
     return `        <div class="work-row" onclick="show('a-${s.slug}')">
           <span class="ref">${pad(n)}</span>
-          <div>
-            <h3>${esc(s.title)}<span class="block">▓</span></h3>
+${thumb}
+          <div class="wire-text">
+            <h3>${esc(s.title)}</h3>
             <div class="meta">${meta}</div>
           </div>
         </div>`;
@@ -136,16 +140,17 @@ const wireEntries = (wire ? wire.items : []).map(item => ({
   render: n => {
     const p = item.photo;
     // every licence requires the photographer and the licence named
-    const shot = p ? `            <figure class="wire-shot">
-              <img src="${esc(p.src)}" alt="${esc(p.subject)}" loading="lazy">
-              <figcaption>Photo: ${esc(p.author)} · ${esc(p.licence)} · <a href="${esc(p.page)}" target="_blank" rel="noopener">Wikimedia Commons</a></figcaption>
-            </figure>\n` : '';
+    const shot = p ? `          <figure class="wire-shot">
+            <img src="${esc(p.src)}" alt="${esc(p.subject)}" loading="lazy">
+          </figure>` : '          <div class="wire-shot"></div>';
+    const shotCredit = p ? ` · Photo ${esc(p.author)} / ${esc(p.licence)}` : '';
     return `        <div class="wire-item${p ? ' has-shot' : ''}" onclick="show('${wireSlug(item.title)}')">
           <span class="ref">${pad(n)}</span>
-          <div>
+${shot}
+          <div class="wire-text">
             <h3>${esc(item.title)}</h3>
             ${item.summary ? `<p>${esc(item.summary.split(/\n\s*\n/)[0])}</p>` : ''}
-${shot}            <p class="credit">${item.summary_is_ours ? `As ${esc(item.source)} reported` : esc(item.source)}${item.corroboration > 1 ? ` · Covered by ${item.corroboration} outlets` : ''} · Read on TWS</p>
+            <p class="credit">${item.summary_is_ours ? `As ${esc(item.source)} reported` : esc(item.source)}${item.corroboration > 1 ? ` · Covered by ${item.corroboration} outlets` : ''}${shotCredit}</p>
           </div>
         </div>`;
   },
