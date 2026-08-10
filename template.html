@@ -643,16 +643,23 @@
 
     .page[id^="w-"] .article h2 { font-size: clamp(26px, 3.4vw, 40px); }
 
-    .source-line {
-      margin-top: 38px;
-      padding-top: 22px;
+    /* attribution and rights notice — fine print: it has to be readable and
+       on the record, not compete with the story above it */
+    /* scoped to .article so it outweighs `.article p`, which was silently
+       rendering this notice at full 19px body size */
+    .article .source-line {
+      margin-top: 40px;
+      padding-top: 18px;
       border-top: 1px dotted var(--faint);
       font-family: var(--mono);
-      font-size: 10px;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      line-height: 2.2;
-      color: var(--dim);
+      font-size: 9px;
+      letter-spacing: 0.02em;
+      text-transform: none;
+      line-height: 1.7;
+      /* dimmer than body copy, but --faint (0.18) is too low to actually read
+         at 9px and a notice nobody can read is not a notice */
+      color: rgba(242, 240, 234, 0.38);
+      max-width: 62ch;
     }
 
     .source-line a { color: var(--dim); border-bottom: 1px dotted var(--faint); text-decoration: none; }
