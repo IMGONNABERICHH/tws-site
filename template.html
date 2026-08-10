@@ -668,11 +668,18 @@
     .wire-shot { margin: 4px 0 0; }
 
     .wire-shot img {
-      width: 100%;
+      /* the whole frame, never cropped — tall shots shrink instead of
+         stretching the row */
+      width: auto;
+      height: auto;
+      max-width: 100%;
+      max-height: 260px;
       display: block;
-      aspect-ratio: 3 / 2;
-      object-fit: cover;
       filter: grayscale(0.2);
+    }
+
+    @media (max-width: 700px) {
+      .wire-shot img { max-height: 150px; }
     }
 
     .wire-shot figcaption {

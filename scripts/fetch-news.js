@@ -448,6 +448,9 @@ async function findPhoto(item) {
       // use the size Wikimedia actually serves — asking for a wider thumb than
       // the source image 400s, and it varies per file
       src: page.thumbnail.source.split('?')[0],
+      // carried so the page can reserve the right space before it loads
+      width: page.thumbnail.width || null,
+      height: page.thumbnail.height || null,
       subject: page.title,
       author: lic.author,
       licence: lic.licence,

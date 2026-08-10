@@ -15,7 +15,9 @@
         "subject": "Damon Wayans",
         "author": "Brian Solis",
         "licence": "CC BY 2.0",
-        "page": "https://commons.wikimedia.org/wiki/File:Damon_Wayans.JPG"
+        "page": "https://commons.wikimedia.org/wiki/File:Damon_Wayans.JPG",
+        "width": 330,
+        "height": 441
       }
     },
     {
@@ -31,7 +33,9 @@
         "subject": "Mariska Hargitay",
         "author": "Joella Marano from Manhattan, NY",
         "licence": "CC BY-SA 2.0",
-        "page": "https://commons.wikimedia.org/wiki/File:Mariska_Hargitay_%40_Make_Believe_On_Broadway_(cropped).jpg"
+        "page": "https://commons.wikimedia.org/wiki/File:Mariska_Hargitay_%40_Make_Believe_On_Broadway_(cropped).jpg",
+        "width": 330,
+        "height": 421
       }
     },
     {
@@ -57,7 +61,9 @@
         "subject": "Yoko Ono",
         "author": "Secretaría de Cultura de la Ciudad de México",
         "licence": "CC BY-SA 2.0",
-        "page": "https://commons.wikimedia.org/wiki/File:MEX_MM_CONFERENCIA_YOKO_ONO_(cropped).jpg"
+        "page": "https://commons.wikimedia.org/wiki/File:MEX_MM_CONFERENCIA_YOKO_ONO_(cropped).jpg",
+        "width": 330,
+        "height": 440
       }
     },
     {
@@ -73,7 +79,9 @@
         "subject": "Iceage",
         "author": "CRUSTINA!",
         "licence": "CC BY-SA 2.0",
-        "page": "https://commons.wikimedia.org/wiki/File:Iceage_(band)_in_Toronto.jpg"
+        "page": "https://commons.wikimedia.org/wiki/File:Iceage_(band)_in_Toronto.jpg",
+        "width": 330,
+        "height": 220
       }
     }
   ]

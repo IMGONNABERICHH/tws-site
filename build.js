@@ -45,6 +45,29 @@ function md(body) {
   }).join('\n        ');
 }
 
+// intrinsic size straight from the file header — no dependencies, and it lets
+// the browser hold the right space so nothing shifts or crops
+function imageSize(file) {
+  try {
+    const d = fs.readFileSync(file);
+    if (d[0] === 0xFF && d[1] === 0xD8) {                       // JPEG
+      let i = 2;
+      while (i < d.length) {
+        if (d[i] !== 0xFF) { i++; continue; }
+        const m = d[i + 1];
+        if (m >= 0xC0 && m <= 0xCF && m !== 0xC4 && m !== 0xC8 && m !== 0xCC) {
+          return { height: d.readUInt16BE(i + 5), width: d.readUInt16BE(i + 7) };
+        }
+        if (m === 0xD8 || m === 0xD9 || (m >= 0xD0 && m <= 0xD7)) { i += 2; continue; }
+        i += 2 + d.readUInt16BE(i + 2);
+      }
+    } else if (d.slice(0, 8).toString('hex') === '89504e470d0a1a0a') {   // PNG
+      return { width: d.readUInt32BE(16), height: d.readUInt32BE(20) };
+    }
+  } catch { /* unreadable — fall through */ }
+  return null;
+}
+
 function slugOf(file) { return path.basename(file, '.md').toLowerCase().replace(/[^a-z0-9]+/g, '-'); }
 
 // ── load stories, newest first ──
@@ -119,8 +142,11 @@ const storyEntries = stories.map(s => ({
   render: n => {
     const meta = [s.kicker, s.location, s.video ? 'Video' : '']
       .filter(Boolean).map(x => `<span>${esc(x)}</span>`).join('');
-    const thumb = (s.photos && s.photos.length)
-      ? `          <figure class="wire-shot"><img src="${esc(s.photos[0])}" alt="" loading="lazy"></figure>`
+    const first = (s.photos && s.photos.length) ? s.photos[0] : null;
+    const dim = first ? imageSize(path.join(ROOT, first.replace(/^\//, ''))) : null;
+    const size = dim ? ` width="${dim.width}" height="${dim.height}"` : '';
+    const thumb = first
+      ? `          <figure class="wire-shot"><img src="${esc(first)}" alt="" loading="lazy"${size}></figure>`
       : '          <div class="wire-shot"></div>';
     return `        <div class="work-row" onclick="show('a-${s.slug}')">
           <span class="ref">${pad(n)}</span>
@@ -140,8 +166,9 @@ const wireEntries = (wire ? wire.items : []).map(item => ({
   render: n => {
     const p = item.photo;
     // every licence requires the photographer and the licence named
+    const size = (p && p.width && p.height) ? ` width="${p.width}" height="${p.height}"` : '';
     const shot = p ? `          <figure class="wire-shot">
-            <img src="${esc(p.src)}" alt="${esc(p.subject)}" loading="lazy">
+            <img src="${esc(p.src)}" alt="${esc(p.subject)}" loading="lazy"${size}>
           </figure>` : '          <div class="wire-shot"></div>';
     const shotCredit = p ? ` · Photo ${esc(p.author)} / ${esc(p.licence)}` : '';
     return `        <div class="wire-item${p ? ' has-shot' : ''}" onclick="show('${wireSlug(item.title)}')">
