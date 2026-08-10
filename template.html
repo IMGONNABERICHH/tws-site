@@ -545,7 +545,7 @@
     }
 
     /* ─── THE WIRE ─── */
-    .wire { max-width: 860px; margin: 0 auto; padding-top: 130px; }
+    /* width comes from .wrap so this section lines up with the stories above */
 
     .wire-head { padding-bottom: 30px; border-bottom: 1px dotted var(--faint); margin-bottom: 10px; }
 
@@ -611,6 +611,9 @@
       color: rgba(242,240,234,0.8);
       margin-bottom: 12px;
     }
+
+    .wire { padding: 70px 0 30px; }
+    .wire .section-label { border-top: 1px dotted var(--faint); padding-top: 34px; }
 
     .wire-shot { margin: 6px 0 16px; max-width: 360px; }
 
@@ -710,7 +713,6 @@
       <div class="work wrap" id="work-anchor">
         <p class="section-label"><span>Selected Coverage</span><span>REF TWS-001</span></p>
 
-{{WIRE_ROW}}
         {{WORK_ROWS}}
 
         <div class="work-row" onclick="show('radio')">
@@ -721,10 +723,9 @@
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- ═══ THE WIRE ═══ -->
-{{WIRE_PAGE}}
+{{WIRE_SECTION}}
+    </div>
 
     <!-- ═══ ARTICLES ═══ -->
 {{ARTICLE_PAGES}}
@@ -794,6 +795,16 @@
         : id === 'wire' ? 'tab-wire' : 'tab-front';
       document.getElementById(tab).classList.add('active');
       window.scrollTo({ top: 0, behavior: 'instant' });
+    }
+
+    // The Wire lives at the foot of the front page — jump to it from the nav
+    function toWire() {
+      show('front');
+      document.querySelectorAll('.nav-links span').forEach(t => t.classList.remove('active'));
+      const tab = document.getElementById('tab-wire');
+      if (tab) tab.classList.add('active');
+      const anchor = document.getElementById('wire-anchor');
+      if (anchor) anchor.scrollIntoView({ behavior: 'smooth' });
     }
 
     // hero slideshow — cross-fades TWS photography behind the wordmark

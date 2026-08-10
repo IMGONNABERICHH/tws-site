@@ -112,11 +112,10 @@ if (fs.existsSync(wirePath)) {
   }
 }
 
-// the brief takes the top slot, so stories start at 02 when it's present
-const offset = wire ? 1 : 0;
+const offset = 0;
 
 const wireTab = wire
-  ? `      <li><span id="tab-wire" onclick="show('wire')">The Wire</span></li>` : '';
+  ? `      <li><span id="tab-wire" onclick="toWire()">The Wire</span></li>` : '';
 
 // the row teases the day's lead story — the meta line is small uppercase type,
 // so keep it short and let the rest of the count carry the "there's more" part
@@ -137,23 +136,8 @@ const lead = wire ? (() => {
   return rest > 0 ? `${title} +${rest} more` : title;
 })() : '';
 
-const wireRow = wire ? `        <div class="work-row" onclick="show('wire')">
-          <span class="ref">01</span>
-          <div>
-            <h3>The Wire<span class="block">▓</span></h3>
-            <div class="meta"><span>Daily Brief</span>${shortDate ? `<span>${esc(shortDate)}</span>` : ''}<span>${esc(lead)}</span></div>
-          </div>
-        </div>
-` : '';
-
-const wirePage = wire ? `    <div class="page" id="wire">
-      <div class="wire wrap">
-        <span class="back" onclick="show('front')">All Stories</span>
-        <div class="wire-head">
-          <p class="kicker">Daily Brief</p>
-          <h2>The Wire<span style="color:var(--blue)">▓</span></h2>
-          <p class="stamp">${esc(wire.dateline || '')} · ${wire.items.length} headlines · Music &amp; culture</p>
-        </div>
+const wirePage = wire ? `      <div class="wire wrap" id="wire-anchor">
+        <p class="section-label"><span>The Wire — Daily Brief</span><span>${esc(shortDate || '')}</span></p>
 
 ${wire.items.map((item, i) => {
     const p = item.photo;
@@ -174,11 +158,10 @@ ${shot}            <p class="credit">${item.summary_is_ours ? `As ${esc(item.sou
 
         <p class="wire-note">
           The Wire collects the day's music and culture headlines from other publications.
-          Each summary line is the outlet's own, as published in its news feed. Every item
-          credits its source and links to the original reporting — read the full story there.
+          Every item credits its source and links to the original reporting — read the
+          full story there.
         </p>
-      </div>
-    </div>` : '';
+      </div>` : '';
 
 // ── build work rows ──
 const rows = stories.map((s, i) => {
@@ -218,9 +201,8 @@ const pages = stories.map(s => {
 let out = fs.readFileSync(path.join(ROOT, 'template.html'), 'utf8')
   .replace('{{HERO_SLIDES}}', () => heroSlides)
   .replace('{{WIRE_TAB}}', () => wireTab)
-  .replace('{{WIRE_ROW}}', () => wireRow)
   .replace('{{WORK_ROWS}}', () => rows)
-  .replace('{{WIRE_PAGE}}', () => wirePage)
+  .replace('{{WIRE_SECTION}}', () => wirePage)
   .replace('{{ARTICLE_PAGES}}', () => pages);
 // the static radio row keeps ref "07" in the template — renumber it after the stories
 out = out.replace(/(<div class="work-row" onclick="show\('radio'\)">\s*<span class="ref">)\d+(<\/span>)/, `$1${pad(stories.length + 1 + offset)}$2`);
