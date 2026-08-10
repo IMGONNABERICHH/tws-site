@@ -55,6 +55,50 @@ const stories = fs.readdirSync(storyDir)
   .filter(s => s && s.title)
   .sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
 
+// ── hero slideshow ──
+// Web-sized copies of TWS's own photography live in images/hero. Each slide
+// credits the story it was shot for, where we can match it back to one.
+const heroDir = path.join(ROOT, 'images', 'hero');
+const storyByPhoto = {};
+for (const s of stories) {
+  for (const photo of s.photos || []) {
+    storyByPhoto[path.basename(photo).replace(/\.[^.]+$/, '')] = s;
+  }
+}
+
+const heroFiles = fs.existsSync(heroDir)
+  ? fs.readdirSync(heroDir).filter(f => /\.(jpe?g|png|webp)$/i.test(f)).sort()
+  : [];
+
+// photos attached to a story lead — they have something to click through to
+heroFiles.sort((a, b) => {
+  const sa = storyByPhoto[a.replace(/\.[^.]+$/, '')] ? 0 : 1;
+  const sb = storyByPhoto[b.replace(/\.[^.]+$/, '')] ? 0 : 1;
+  return sa - sb;
+});
+
+// attribute-safe: esc() already handled & < >, so only quotes remain
+const attr = s => esc(s).replace(/"/g, '&quot;');
+const storyOf = file => storyByPhoto[file.replace(/\.[^.]+$/, '')];
+
+// the credit is passed as plain data; the link is assembled in the page
+const creditHtml = file => {
+  const s = storyOf(file);
+  return s
+    ? `TWS Studio · <a href="#" onclick="event.stopPropagation();show('a-${s.slug}');return false;">${esc(s.title)}</a>`
+    : 'TWS Studio';
+};
+
+const heroSlides = heroFiles.length ? `        <div class="hero-slides">
+${heroFiles.map((f, i) => {
+    const s = storyOf(f);
+    const flags = i === 0 ? 'class="on" fetchpriority="high"' : 'loading="lazy"';
+    const data = s ? ` data-story="${attr(s.title)}" data-slug="${attr(s.slug)}"` : '';
+    return `          <img src="/images/hero/${encodeURIComponent(f)}" alt="" ${flags}${data}>`;
+  }).join('\n')}
+        </div>
+        <p class="hero-credit" id="hero-credit">${creditHtml(heroFiles[0])}</p>` : '';
+
 // ── load The Wire (the daily brief), if one has been generated ──
 const pad = n => String(n).padStart(2, '0');
 const wirePath = path.join(ROOT, 'content', 'news', 'latest.json');
@@ -164,6 +208,7 @@ const pages = stories.map(s => {
 // ── render + fix radio row number ──
 // replacements go through functions so a "$&" in a headline stays literal
 let out = fs.readFileSync(path.join(ROOT, 'template.html'), 'utf8')
+  .replace('{{HERO_SLIDES}}', () => heroSlides)
   .replace('{{WIRE_TAB}}', () => wireTab)
   .replace('{{WIRE_ROW}}', () => wireRow)
   .replace('{{WORK_ROWS}}', () => rows)

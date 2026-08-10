@@ -97,6 +97,76 @@
       cursor: pointer;
     }
 
+    /* ─── HERO SLIDESHOW (TWS Studio photography) ─── */
+    /* z-index 0, not -1: body paints its own background box, and a negative
+       layer would sit underneath it and never be seen */
+    .hero-slides { position: absolute; inset: 0; z-index: 0; }
+
+    /* lift the hero's own content over the photography. Listed one by one so
+       the already-absolute .scroll-hint keeps its placement */
+    .hero .spec,
+    .hero h1,
+    .hero .sub,
+    .hero .contact { position: relative; z-index: 1; }
+    .hero .scroll-hint { z-index: 1; }
+
+    .hero-slides img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 1.4s ease-in-out;
+      /* sit the photography back so the wordmark stays the loudest thing */
+      filter: grayscale(0.35) contrast(1.05);
+    }
+
+    .hero-slides img.on { opacity: 0.55; }
+
+    /* keeps the type readable over any photo, and vignettes the edges */
+    .hero-slides::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at center, rgba(7,7,7,0.48) 0%, rgba(7,7,7,0.72) 68%, rgba(7,7,7,0.94) 100%),
+        linear-gradient(to bottom, var(--black) 0%, transparent 26%, transparent 74%, var(--black) 100%);
+    }
+
+
+    .hero-credit {
+      position: absolute;
+      bottom: 26px;
+      right: 26px;
+      z-index: 2;
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--dim);
+      text-align: right;
+      max-width: 46vw;
+      transition: opacity 0.5s;
+    }
+
+    .hero-credit a { color: var(--dim); text-decoration: none; border-bottom: 1px dotted var(--faint); }
+    .hero-credit a:hover { color: var(--blue); border-color: var(--blue); }
+
+    @media (prefers-reduced-motion: reduce) {
+      .hero-slides img { transition: none; }
+    }
+
+    @media (max-width: 560px) {
+      .hero-credit { bottom: 18px; right: 18px; left: 18px; max-width: none; }
+    }
+
+    @media (max-width: 400px) {
+      .nav-logo { font-size: 18px; }
+      .nav-links { gap: 9px; }
+      .nav-links span { font-size: 8px; letter-spacing: 0.1em; }
+    }
+
     .hero .spec {
       font-family: var(--mono);
       font-size: 10px;
@@ -571,7 +641,10 @@
       .work-row .meta { grid-column: 1; flex-wrap: wrap; gap: 12px; }
       .wire-item { grid-template-columns: 1fr; gap: 10px; }
       .radio-grid { grid-template-columns: 1fr; }
-      .nav-links { gap: 16px; }
+      /* four nav items have to clear the logo without wrapping */
+      nav { padding: 16px 18px; }
+      .nav-links { gap: 13px; }
+      .nav-links span { font-size: 9px; letter-spacing: 0.14em; }
       .spec-row { flex-direction: column; align-items: flex-start; gap: 6px; }
       .foot-spec { flex-direction: column; }
     }
@@ -595,6 +668,7 @@
     <div class="page active" id="front">
 
       <div class="hero" onclick="document.getElementById('work-anchor').scrollIntoView({behavior:'smooth'})">
+{{HERO_SLIDES}}
         <p class="spec">NA02—26 · Independent Press · Los Angeles</p>
         <h1>TWS<span class="block">▓</span></h1>
         <p class="sub">Music &nbsp;Culture &nbsp;Radio</p>
@@ -694,6 +768,38 @@
       document.getElementById(tab).classList.add('active');
       window.scrollTo({ top: 0, behavior: 'instant' });
     }
+
+    // hero slideshow — cross-fades TWS photography behind the wordmark
+    (function () {
+      const slides = document.querySelectorAll('.hero-slides img');
+      if (slides.length < 2) return;
+      const credit = document.getElementById('hero-credit');
+      const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (still) return;  // first slide is already showing; leave it be
+
+      let i = 0;
+      setInterval(() => {
+        slides[i].classList.remove('on');
+        i = (i + 1) % slides.length;
+        const next = slides[i];
+        next.loading = 'eager';
+        next.classList.add('on');
+        if (credit) {
+          credit.style.opacity = '0';
+          setTimeout(() => {
+            credit.textContent = 'TWS Studio';
+            if (next.dataset.slug) {
+              const a = document.createElement('a');
+              a.href = '#';
+              a.textContent = next.dataset.story;
+              a.onclick = e => { e.stopPropagation(); show('a-' + next.dataset.slug); return false; };
+              credit.append(' · ', a);
+            }
+            credit.style.opacity = '1';
+          }, 500);
+        }
+      }, 6000);
+    })();
 
     // marquee ticker (doubled for seamless loop)
     (function () {
