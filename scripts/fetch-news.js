@@ -241,7 +241,8 @@ async function rewrite(items) {
   let response;
   try {
     const { default: Anthropic } = await import('@anthropic-ai/sdk');
-    const client = new Anthropic({ apiKey });
+    // ride out transient rate limits and 5xx rather than losing the day
+    const client = new Anthropic({ apiKey, maxRetries: 5 });
     response = await client.messages.create({
       model: 'claude-opus-5',
       max_tokens: 16000,
