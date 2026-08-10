@@ -103,8 +103,8 @@ ${wire.items.map((item, i) => `        <div class="wire-item">
 
         <p class="wire-note">
           The Wire collects the day's music and culture headlines from other publications.
-          Every item links to the original reporting at its source. Summaries are written
-          automatically from each outlet's own description — read the full story at the link.
+          Each summary line is the outlet's own, as published in its news feed. Every item
+          credits its source and links to the original reporting — read the full story there.
         </p>
       </div>
     </div>` : '';

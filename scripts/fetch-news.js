@@ -1,10 +1,11 @@
 // TWS — The Wire
-// Pulls the day's music & culture headlines from public RSS feeds, writes a
-// short summary for each, and saves the result to content/news/latest.json.
+// Pulls the day's music & culture headlines from public RSS feeds and saves
+// them to content/news/latest.json.
+//
+// Each item shows the outlet's own summary line, credited and linked back.
+// No API keys, no dependencies, no cost.
 //
 // Run: node scripts/fetch-news.js
-// Needs ANTHROPIC_API_KEY for summaries. Without it the brief still builds,
-// just headlines and links.
 
 const fs = require('fs');
 const path = require('path');
@@ -136,97 +137,27 @@ function select(items, hours) {
   return picked;
 }
 
-// ── summaries ──
-const SYSTEM = `You write the one-line summaries for The Wire, the daily music and culture brief at TWS, an independent Los Angeles publication.
+// ── the summary line ──
+// Every feed ships the outlet's own one-line description of each story.
+// That's what we show: their words, trimmed, credited, and linked back.
+function summaryLine(blurb) {
+  if (!blurb) return '';
+  // some feeds double-encode their markup, so tags survive the first decode
+  let text = blurb.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
 
-For each headline you are given the outlet's own summary text. Write one or two sentences saying what happened, in TWS's voice: direct, specific, no hype, no filler openers like "In a surprising move" or "Music fans everywhere".
+  // feeds often tack on "Read more", "The post ... appeared first on ..." etc.
+  text = text
+    .replace(/\s*The post\s+.*?\s+appeared first on\s+.*$/i, '')
+    .replace(/\s*Continue reading.*$/i, '')
+    .replace(/\s*Read (the full story|more).*$/i, '')
+    .replace(/\s*\[…\]\s*$/, '')
+    .trim();
 
-Rules:
-- Use only the headline and summary text provided. If they don't say something, don't write it.
-- Never invent quotes, dates, chart positions, sales figures, or names that aren't in the source text.
-- If the source text is thin, write a shorter summary rather than padding it out.
-- No editorializing and no closing sign-offs. Just the news.
-- Do not repeat the headline verbatim — add what the headline leaves out.
-- Plain sentences. No markdown, no emoji.`;
-
-async function summarize(items) {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    console.warn('  ANTHROPIC_API_KEY not set — publishing headlines without summaries.');
-    return items;
-  }
-
-  // keys copied on a phone often arrive wrapped across lines — strip any
-  // whitespace so a stray newline in the secret doesn't fail the run
-  const apiKey = process.env.ANTHROPIC_API_KEY.replace(/\s+/g, '');
-
-  const { default: Anthropic } = await import('@anthropic-ai/sdk');
-  const client = new Anthropic({ apiKey });
-
-  const payload = items.map((item, i) => ({
-    index: i,
-    headline: item.title,
-    source: item.source,
-    source_text: item.blurb || '(none provided)',
-  }));
-
-  let response;
-  try {
-    response = await client.messages.create({
-      model: 'claude-opus-5',
-      max_tokens: 16000,
-      system: SYSTEM,
-      output_config: {
-        effort: 'low',
-        format: {
-          type: 'json_schema',
-          schema: {
-            type: 'object',
-            properties: {
-              summaries: {
-                type: 'array',
-                items: {
-                  type: 'object',
-                  properties: {
-                    index: { type: 'integer' },
-                    summary: { type: 'string' },
-                  },
-                  required: ['index', 'summary'],
-                  additionalProperties: false,
-                },
-              },
-            },
-            required: ['summaries'],
-            additionalProperties: false,
-          },
-        },
-      },
-      messages: [{
-        role: 'user',
-        content: `Write a summary for each of these ${items.length} headlines. Return one entry per index.\n\n${JSON.stringify(payload, null, 2)}`,
-      }],
-    });
-  } catch (err) {
-    // No credits, rate limit, outage — none of it should stop the brief.
-    console.warn(`  Summaries unavailable (${err.message.split('\n')[0]})`);
-    console.warn('  Publishing headlines and links only.');
-    return items;
-  }
-
-  if (response.stop_reason === 'refusal') {
-    console.warn('  Summaries declined by the model — publishing headlines only.');
-    return items;
-  }
-
-  try {
-    const text = response.content.find(b => b.type === 'text');
-    const parsed = JSON.parse(text.text);
-    for (const { index, summary } of parsed.summaries) {
-      if (items[index] && summary) items[index].summary = summary.trim();
-    }
-  } catch (err) {
-    console.warn(`  Could not read the summaries (${err.message}) — publishing headlines only.`);
-  }
-  return items;
+  if (text.length <= 220) return text;
+  // cut at a sentence end if there's one nearby, otherwise at a word boundary
+  const stop = text.slice(0, 220).lastIndexOf('. ');
+  if (stop > 120) return text.slice(0, stop + 1);
+  return text.slice(0, text.lastIndexOf(' ', 200)).trim() + '…';
 }
 
 // ── main ──
@@ -246,15 +177,13 @@ async function summarize(items) {
     process.exit(1);
   }
 
-  await summarize(picked);
-
   const brief = {
     generated_at: new Date().toISOString(),
     dateline: new Date().toLocaleDateString('en-US', {
       timeZone: 'America/Los_Angeles', month: 'long', day: 'numeric', year: 'numeric',
     }),
-    items: picked.map(({ title, url, source, published_at, summary }) =>
-      ({ title, url, source, published_at, summary: summary || '' })),
+    items: picked.map(({ title, url, source, published_at, blurb }) =>
+      ({ title, url, source, published_at, summary: summaryLine(blurb) })),
   };
 
   fs.mkdirSync(OUT_DIR, { recursive: true });
