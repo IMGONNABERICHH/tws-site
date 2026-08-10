@@ -74,11 +74,30 @@ const offset = wire ? 1 : 0;
 const wireTab = wire
   ? `      <li><span id="tab-wire" onclick="show('wire')">The Wire</span></li>` : '';
 
+// the row teases the day's lead story — the meta line is small uppercase type,
+// so keep it short and let the rest of the count carry the "there's more" part
+const shortDate = wire ? (wire.dateline || '').replace(/,\s*\d{4}$/, '') : '';
+const lead = wire ? (() => {
+  // drop any trailing "| Billboard News" style outlet tag
+  let title = wire.items[0].title.replace(/\s*[|–—]\s*[^|–—]*$/, '').trim();
+
+  if (title.length > 46) {
+    // cut at a comma or colon if one falls in a sensible spot — reads better
+    // than clipping mid-clause
+    const brk = title.slice(0, 50).search(/[,:;]/);
+    title = brk > 14
+      ? title.slice(0, brk)
+      : title.slice(0, title.lastIndexOf(' ', 44)).trim() + '…';
+  }
+  const rest = wire.items.length - 1;
+  return rest > 0 ? `${title} +${rest} more` : title;
+})() : '';
+
 const wireRow = wire ? `        <div class="work-row" onclick="show('wire')">
           <span class="ref">01</span>
           <div>
             <h3>The Wire<span class="block">▓</span></h3>
-            <div class="meta"><span>Daily Brief</span>${wire.dateline ? `<span>${esc(wire.dateline)}</span>` : ''}<span>${wire.items.length} Headlines</span></div>
+            <div class="meta"><span>Daily Brief</span>${shortDate ? `<span>${esc(shortDate)}</span>` : ''}<span>${esc(lead)}</span></div>
           </div>
         </div>
 ` : '';
