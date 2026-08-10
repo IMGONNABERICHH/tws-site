@@ -58,28 +58,35 @@
       mix-blend-mode: difference;
     }
 
-    .nav-logo {
-      font-family: var(--display);
-      font-weight: 700;
-      font-size: 13px;
-      letter-spacing: 0.22em;
-      cursor: pointer;
-      user-select: none;
-    }
-
-    .nav-links { display: flex; gap: 28px; list-style: none; }
-
+    /* the wordmark and the links are one row of type — same face, same size,
+       and every item carries the underline slot so nothing sits off the line */
+    .nav-logo,
     .nav-links span {
       font-family: var(--mono);
       font-size: 10px;
       letter-spacing: 0.24em;
+      line-height: 1;
       text-transform: uppercase;
+      /* block, not inline — an inline span is sized by font metrics instead of
+         line-height, which is what left the wordmark sitting 3px high */
+      display: block;
+      border-bottom: 1px dotted transparent;
+      padding-bottom: 4px;
       cursor: pointer;
-      color: var(--dim);
     }
 
+    .nav-logo { font-weight: 700; user-select: none; }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      list-style: none;
+    }
+
+    .nav-links span { color: var(--dim); }
     .nav-links span:hover { color: var(--white); }
-    .nav-links span.active { color: var(--white); border-bottom: 1px dotted var(--white); }
+    .nav-links span.active { color: var(--white); border-bottom-color: var(--white); }
 
     /* ─── PAGE SYSTEM ─── */
     .page { display: none; }
@@ -162,8 +169,8 @@
     }
 
     @media (max-width: 400px) {
-      .nav-logo { font-size: 12px; letter-spacing: 0.18em; }
       .nav-links { gap: 9px; }
+      .nav-logo,
       .nav-links span { font-size: 8px; letter-spacing: 0.1em; }
     }
 
@@ -725,6 +732,7 @@
       /* four nav items have to clear the logo without wrapping */
       nav { padding: 16px 18px; }
       .nav-links { gap: 13px; }
+      .nav-logo,
       .nav-links span { font-size: 9px; letter-spacing: 0.14em; }
       .spec-row { flex-direction: column; align-items: flex-start; gap: 6px; }
       .foot-spec { flex-direction: column; }
