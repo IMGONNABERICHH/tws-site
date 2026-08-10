@@ -1,41 +1,83 @@
 {
-  "generated_at": "2026-08-10T20:00:26.927Z",
+  "generated_at": "2026-08-10T20:12:05.304Z",
   "dateline": "August 10, 2026",
   "items": [
+    {
+      "title": "Mattel’s Whitney Houston Barbie Is Inspired by One of Pop’s Greatest Anthems: How To Shop Online",
+      "url": "https://www.billboard.com/culture/product-recommendations/whitney-houston-mattel-barbie-doll-buy-shop-online-1236311812/",
+      "source": "Billboard",
+      "published_at": "2026-08-10T20:09:17.000Z",
+      "summary": "Mattel has released its first Whitney Houston doll, modeled on her \"I Wanna Dance With Somebody\" era. It is available to order online.",
+      "summary_is_ours": true,
+      "photo": {
+        "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Whitney_Houston_%28cropped3%29.JPEG/330px-Whitney_Houston_%28cropped3%29.JPEG",
+        "subject": "Whitney Houston",
+        "author": "PH2 Mark Kettenhofen",
+        "licence": "Public domain",
+        "page": "https://commons.wikimedia.org/wiki/File:Whitney_Houston_(cropped3).JPEG"
+      }
+    },
+    {
+      "title": "AI Music Company Suno Unveils Download Caps for Free, Paid Tiers in Quest to Combat Abuse (EXCLUSIVE)",
+      "url": "https://variety.com/2026/music/news/suno-unveils-download-caps-for-free-paid-tiers-generator-1236831589/",
+      "source": "Variety",
+      "published_at": "2026-08-10T20:00:00.000Z",
+      "summary": "Suno has put numbers to the download limits it announced last week: starting September 3, free users can pull down seven tracks total from their libraries, with separate caps for paying tiers. The company frames the restrictions as an anti-abuse measure as it tries to establish itself as a legitimate industry player.",
+      "summary_is_ours": true,
+      "photo": null
+    },
+    {
+      "title": "Jacob Elordi Circling Ari Aster’s Next Film At A24 Starring Scarlett Johansson",
+      "url": "https://deadline.com/2026/08/jacob-elordi-ari-aster-scapegoat-scarlett-johansson-a24-1237030322/",
+      "source": "Deadline",
+      "published_at": "2026-08-10T20:00:00.000Z",
+      "summary": "Jacob Elordi is in talks to join Scarlett Johansson in Scapegoat, a thriller Ari Aster wrote and will direct for A24. The studio has released Aster's last four films.",
+      "summary_is_ours": true,
+      "photo": {
+        "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/JacobElordi-TIFF2025-01_%28cropped_2%29.png/330px-JacobElordi-TIFF2025-01_%28cropped_2%29.png",
+        "subject": "Jacob Elordi",
+        "author": "JoshPopov",
+        "licence": "CC BY 4.0",
+        "page": "https://commons.wikimedia.org/wiki/File:JacobElordi-TIFF2025-01_(cropped_2).png"
+      }
+    },
+    {
+      "title": "Charli xcx Headlines & Backstage Interviews With Jade & PinkPantheress At Outside Lands 2026 | All Access",
+      "url": "https://www.billboard.com/video/all-access-charli-xcx-jade-pinkpantheress-outside-lands-2026/",
+      "source": "Billboard",
+      "published_at": "2026-08-10T19:59:13.000Z",
+      "summary": "Billboard's sponsored Outside Lands 2026 package covers Charli xcx's headlining set along with backstage segments featuring Jade, PinkPantheress and Kwn.",
+      "summary_is_ours": true,
+      "photo": {
+        "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Charli_xcx_at_Berlinale_2026-1.jpg/330px-Charli_xcx_at_Berlinale_2026-1.jpg",
+        "subject": "Charli XCX",
+        "author": "Elena Ternovaja",
+        "licence": "CC BY-SA 3.0",
+        "page": "https://commons.wikimedia.org/wiki/File:Charli_xcx_at_Berlinale_2026-1.jpg"
+      }
+    },
     {
       "title": "CAA Signs Ashley Gill & Grant Gibbs Of Musical Comedy Duo A Twink And A Redhead",
       "url": "https://deadline.com/2026/08/a-twink-and-a-redhead-signs-caa-1237030348/",
       "source": "Deadline",
       "published_at": "2026-08-10T19:55:58.000Z",
-      "summary": "EXCLUSIVE: CAA has signed Grant Gibbs and Ashley Gill, the comedy duo known as A Twink and a Redhead, for representation. A pair of comedians, musicians and digital creators, Gibbs and Gill’s content…",
-      "summary_is_ours": false,
-      "photo": null
-    },
-    {
-      "title": "TV Show Book Adaptations Arriving In 2026 So Far",
-      "url": "https://deadline.com/feature/tv-show-based-on-books-this-year-1236035246/",
-      "source": "Deadline",
-      "published_at": "2026-08-10T19:48:21.000Z",
-      "summary": "Several best-selling books will make way for returning TV shows and new ones in 2026. Summer has seen several adaptations like Every Year After, Netflix’s Little House on the Prairie, Peacock’s The…",
-      "summary_is_ours": false,
-      "photo": null
-    },
-    {
-      "title": "Watch KATSEYE Get Schooled on ‘Skibidi’ & More Gen Alpha Slang on ‘Celebrity Substitute’",
-      "url": "https://www.billboard.com/music/music-news/katseye-learns-skibidi-gen-alpha-slang-celebrity-substitute-1236312830/",
-      "source": "Billboard",
-      "published_at": "2026-08-10T19:47:13.000Z",
-      "summary": "The girl group learns some popular terms from young kids in Billboard 's exclusive clip.",
-      "summary_is_ours": false,
-      "photo": null
+      "summary": "CAA has signed Grant Gibbs and Ashley Gill, the musical comedy duo A Twink and a Redhead, whose videos draw millions of views across social platforms. The pair are currently touring large North American venues.",
+      "summary_is_ours": true,
+      "photo": {
+        "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Grant_%26_Ash_performing_in_2024.jpg/330px-Grant_%26_Ash_performing_in_2024.jpg",
+        "subject": "A Twink and a Redhead",
+        "author": "Erumuse",
+        "licence": "CC BY-SA 2.0",
+        "page": "https://commons.wikimedia.org/wiki/File:Grant_%26_Ash_performing_in_2024.jpg"
+      }
     },
     {
       "title": "aespa on Lollapalooza, Lemonade, and the reality of K-pop idoldom",
       "url": "https://www.thefader.com/2026/08/10/aespa-lollapalooza-lemonade-favorite-music-interview",
       "source": "The FADER",
       "published_at": "2026-08-10T19:21:17.000Z",
-      "summary": "And pre-gaming their sets to Young Thug and Vanessa Carlton.",
-      "summary_is_ours": false,
+      "summary": "aespa talk through their Lollapalooza set and what life as K-pop idols actually looks like, including the Young Thug and Vanessa Carlton songs they use to warm up before shows.",
+      "summary_is_ours": true,
       "photo": {
         "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/241005_aespa_K-Link_Festival_%28cropped%29.jpg/330px-241005_aespa_K-Link_Festival_%28cropped%29.jpg",
         "subject": "Aespa",
@@ -45,21 +87,12 @@
       }
     },
     {
-      "title": "Everything We Learned From Drake’s 9th Anniversary Stake Livestream",
-      "url": "https://www.billboard.com/lists/drake-stake-stream-everything-we-learned/",
-      "source": "Billboard",
-      "published_at": "2026-08-10T19:09:14.000Z",
-      "summary": "Barking for a \"goth baddie,\" a message for the rap game and plenty more came from the 6 God's latest side quest.",
-      "summary_is_ours": false,
-      "photo": null
-    },
-    {
       "title": "The Opener: Ti Steele makes low-cortisol hip-hop",
       "url": "https://www.thefader.com/2026/08/10/the-opener-ti-steele-low-cortisol-hip-hop",
       "source": "The FADER",
       "published_at": "2026-08-10T18:37:04.000Z",
-      "summary": "Following a breakout appearance on skaiwater’s wonderful, the alt-hip-hop singer is gearing up for her next solo album DooMBAP*’.",
-      "summary_is_ours": false,
+      "summary": "Ti Steele, the alt-hip-hop singer who broke through with a guest turn on skaiwater's wonderful, is preparing her next solo album, DooMBAP*'.",
+      "summary_is_ours": true,
       "photo": null
     },
     {
@@ -67,8 +100,8 @@
       "url": "https://consequence.net/2026/08/brad-pitt-says-he-is-no-longer-sober/",
       "source": "Consequence",
       "published_at": "2026-08-10T18:34:56.000Z",
-      "summary": "The actor said he has learned to recognize his limits after a couple of occasions where he became \"overconfident.\" Brad Pitt Says He Is No Longer Sober Alex Krinsky",
-      "summary_is_ours": false,
+      "summary": "Brad Pitt says he no longer abstains from alcohol, adding that a couple of instances of overconfidence taught him where his limits are.",
+      "summary_is_ours": true,
       "photo": {
         "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Brad_Pitt-69858.jpg/330px-Brad_Pitt-69858.jpg",
         "subject": "Brad Pitt",
@@ -82,8 +115,8 @@
       "url": "https://variety.com/2026/artisans/news/first-artists-management-rebrands-as-fam-agency-1236831280/",
       "source": "Variety",
       "published_at": "2026-08-10T18:05:00.000Z",
-      "summary": "First Artists Management, the Los Angeles-based talent agency specializing in composers and music supervisors, is rebranding and changing its name to FAM agency.",
-      "summary_is_ours": false,
+      "summary": "First Artists Management, the Los Angeles agency built around composers and music supervisors, is now FAM Agency. It has also brought on Dan North from Kraft-Engel Management, along with clients including Gabriel Mann and Marcus Norris.",
+      "summary_is_ours": true,
       "photo": null
     },
     {
@@ -91,8 +124,8 @@
       "url": "https://www.rollingstone.com/music/music-features/morgan-freeman-interview-blues-album-action-star-1235606244/",
       "source": "Rolling Stone",
       "published_at": "2026-08-10T17:58:59.000Z",
-      "summary": "Freeman discusses his new album, Morgan Freeman’s Symphonic Blues Experience, why he won’t retire, and more",
-      "summary_is_ours": false,
+      "summary": "Morgan Freeman talks about Morgan Freeman's Symphonic Blues Experience, his new album, and why retirement is not on the table.",
+      "summary_is_ours": true,
       "photo": {
         "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/Morgan_Freeman_at_The_Pentagon_on_2_August_2023_-_230802-D-PM193-3363_%28cropped%29.jpg/330px-Morgan_Freeman_at_The_Pentagon_on_2_August_2023_-_230802-D-PM193-3363_%28cropped%29.jpg",
         "subject": "Morgan Freeman",
@@ -106,17 +139,23 @@
       "url": "https://consequence.net/2026/08/bruce-dickinson-upcoming-solo-album-heavy/",
       "source": "Consequence",
       "published_at": "2026-08-10T17:54:39.000Z",
-      "summary": "The Iron Maiden singer's forthcoming LP is tentatively slated for a 2027 release date. Bruce Dickinson Says Upcoming Solo Album Recorded at Dave Grohl’s Studio Is “Heavy as S**t” Langdon Hickman",
-      "summary_is_ours": false,
-      "photo": null
+      "summary": "Bruce Dickinson recorded his next solo album at Dave Grohl's studio and describes the results as extremely heavy. The record is currently penciled in for 2027.",
+      "summary_is_ours": true,
+      "photo": {
+        "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Bruce_Dickinson_%E2%80%93_Iron_Maiden_%E2%80%93_Tons_of_Rock_2026_05.jpg/330px-Bruce_Dickinson_%E2%80%93_Iron_Maiden_%E2%80%93_Tons_of_Rock_2026_05.jpg",
+        "subject": "Bruce Dickinson",
+        "author": "Birgit Fostervold",
+        "licence": "CC BY-SA 4.0",
+        "page": "https://commons.wikimedia.org/wiki/File:Bruce_Dickinson_%E2%80%93_Iron_Maiden_%E2%80%93_Tons_of_Rock_2026_05.jpg"
+      }
     },
     {
       "title": "Aretha Franklin's 'Sparkle' soundtrack is a neglected classic",
       "url": "https://www.npr.org/2026/08/10/nx-s1-5925352/sparkle-soundtrack-aretha-franklin",
       "source": "NPR Music",
       "published_at": "2026-08-10T17:31:09.000Z",
-      "summary": "The 1976 film is about a '60s trio based loosely on The Supremes. It wasn't a big hit, but it has a devoted cult following, and critic Ken Tucker says it features some of Aretha Franklin's finest performances.",
-      "summary_is_ours": false,
+      "summary": "Critic Ken Tucker makes the case for the soundtrack to 1976's Sparkle, a film about a '60s girl group loosely modeled on the Supremes. The movie underperformed but retains a cult audience, and Tucker argues the record holds some of Aretha Franklin's best singing.",
+      "summary_is_ours": true,
       "photo": {
         "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Aretha_Franklin_1968.jpg/330px-Aretha_Franklin_1968.jpg",
         "subject": "Aretha Franklin",
@@ -124,15 +163,6 @@
         "licence": "Public domain",
         "page": "https://commons.wikimedia.org/wiki/File:Aretha_Franklin_1968.jpg"
       }
-    },
-    {
-      "title": "10 Songs You Should Listen to Now: This Week’s Pitchfork Selects Playlist",
-      "url": "https://pitchfork.com/story/ravyn-lenae-ela-minus-and-more-this-weeks-pitchfork-selects-playlist/",
-      "source": "Pitchfork",
-      "published_at": "2026-08-10T17:10:49.000Z",
-      "summary": "Our weekly playlist highlights songs that our writers, editors, and contributors are listening to on repeat",
-      "summary_is_ours": false,
-      "photo": null
     }
   ]
 }
