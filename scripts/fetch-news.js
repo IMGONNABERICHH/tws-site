@@ -169,50 +169,62 @@ async function summarize(items) {
     source_text: item.blurb || '(none provided)',
   }));
 
-  const response = await client.messages.create({
-    model: 'claude-opus-5',
-    max_tokens: 16000,
-    system: SYSTEM,
-    output_config: {
-      effort: 'low',
-      format: {
-        type: 'json_schema',
-        schema: {
-          type: 'object',
-          properties: {
-            summaries: {
-              type: 'array',
-              items: {
-                type: 'object',
-                properties: {
-                  index: { type: 'integer' },
-                  summary: { type: 'string' },
+  let response;
+  try {
+    response = await client.messages.create({
+      model: 'claude-opus-5',
+      max_tokens: 16000,
+      system: SYSTEM,
+      output_config: {
+        effort: 'low',
+        format: {
+          type: 'json_schema',
+          schema: {
+            type: 'object',
+            properties: {
+              summaries: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    index: { type: 'integer' },
+                    summary: { type: 'string' },
+                  },
+                  required: ['index', 'summary'],
+                  additionalProperties: false,
                 },
-                required: ['index', 'summary'],
-                additionalProperties: false,
               },
             },
+            required: ['summaries'],
+            additionalProperties: false,
           },
-          required: ['summaries'],
-          additionalProperties: false,
         },
       },
-    },
-    messages: [{
-      role: 'user',
-      content: `Write a summary for each of these ${items.length} headlines. Return one entry per index.\n\n${JSON.stringify(payload, null, 2)}`,
-    }],
-  });
+      messages: [{
+        role: 'user',
+        content: `Write a summary for each of these ${items.length} headlines. Return one entry per index.\n\n${JSON.stringify(payload, null, 2)}`,
+      }],
+    });
+  } catch (err) {
+    // No credits, rate limit, outage — none of it should stop the brief.
+    console.warn(`  Summaries unavailable (${err.message.split('\n')[0]})`);
+    console.warn('  Publishing headlines and links only.');
+    return items;
+  }
 
   if (response.stop_reason === 'refusal') {
     console.warn('  Summaries declined by the model — publishing headlines only.');
     return items;
   }
 
-  const text = response.content.find(b => b.type === 'text');
-  const parsed = JSON.parse(text.text);
-  for (const { index, summary } of parsed.summaries) {
-    if (items[index] && summary) items[index].summary = summary.trim();
+  try {
+    const text = response.content.find(b => b.type === 'text');
+    const parsed = JSON.parse(text.text);
+    for (const { index, summary } of parsed.summaries) {
+      if (items[index] && summary) items[index].summary = summary.trim();
+    }
+  } catch (err) {
+    console.warn(`  Could not read the summaries (${err.message}) — publishing headlines only.`);
   }
   return items;
 }
