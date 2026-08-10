@@ -6,7 +6,7 @@
   <title>TWS — Music & Culture, Los Angeles</title>
   <meta name="description" content="TWS is an independent music and culture publication based in Los Angeles. Live coverage, interviews, and radio from the ground up.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Doto:wght@500;700;900&family=DotGothic16&family=Space+Mono:ital@0;1&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Doto:wght@500;700;900&family=DotGothic16&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Space+Mono:ital@0;1&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -19,6 +19,7 @@
       --doto: 'Doto', monospace;
       --pixel: 'DotGothic16', monospace;
       --mono: 'Space Mono', monospace;
+      --text: 'Newsreader', Georgia, 'Times New Roman', serif; /* body copy */
     }
 
     ::selection { background: var(--white); color: var(--black); }
@@ -307,7 +308,7 @@
     .work-row:hover .meta, .work-row:hover .ref { color: rgba(7,7,7,0.6); border-color: rgba(7,7,7,0.3); }
 
     /* ─── ARTICLE ─── */
-    .article { max-width: 720px; margin: 0 auto; padding-top: 130px; }
+    .article { max-width: 660px; margin: 0 auto; padding-top: 130px; }
 
     .back {
       display: inline-block;
@@ -354,16 +355,18 @@
     }
 
     .article p {
-      font-size: 14px;
-      line-height: 2;
-      color: rgba(242,240,234,0.85);
-      margin-bottom: 26px;
+      font-family: var(--text);
+      font-size: 19px;
+      line-height: 1.62;
+      letter-spacing: 0;
+      color: rgba(242,240,234,0.9);
+      margin-bottom: 22px;
     }
 
     .article .byline + p::first-letter {
       font-family: var(--doto);
       font-weight: 900;
-      font-size: 48px;
+      font-size: 44px;
       float: left;
       line-height: 0.8;
       padding: 6px 12px 0 0;
@@ -606,10 +609,12 @@
     .wire-item h3 a:hover { color: var(--blue); }
 
     .wire-item p {
-      font-size: 14px;
-      line-height: 1.95;
-      color: rgba(242,240,234,0.8);
+      font-family: var(--text);
+      font-size: 17px;
+      line-height: 1.6;
+      color: rgba(242,240,234,0.82);
       margin-bottom: 12px;
+      max-width: 62ch;
     }
 
     .page[id^="w-"] .article h2 {
