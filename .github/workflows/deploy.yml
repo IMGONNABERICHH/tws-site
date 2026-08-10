@@ -4,6 +4,9 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  # lets the daily news job deploy itself — a push made with GITHUB_TOKEN
+  # does not fire the push event above
+  workflow_call:
 
 jobs:
   deploy:

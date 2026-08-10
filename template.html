@@ -474,10 +474,102 @@
       opacity: 0.75;
     }
 
+    /* ─── THE WIRE ─── */
+    .wire { max-width: 860px; margin: 0 auto; padding-top: 130px; }
+
+    .wire-head { padding-bottom: 30px; border-bottom: 1px dotted var(--faint); margin-bottom: 10px; }
+
+    .wire-head .kicker {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 12px;
+    }
+
+    .wire-head h2 {
+      font-family: var(--doto);
+      font-weight: 900;
+      font-size: clamp(30px, 5vw, 54px);
+      line-height: 1.05;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+
+    .wire-head .stamp {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--dim);
+    }
+
+    .wire-item {
+      padding: 30px 0;
+      border-bottom: 1px dotted var(--faint);
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      gap: 26px;
+      align-items: baseline;
+    }
+
+    .wire-item .ref {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      color: var(--dim);
+      border: 1px solid var(--faint);
+      padding: 2px 8px;
+      justify-self: start;
+    }
+
+    .wire-item h3 {
+      font-family: var(--pixel);
+      font-weight: 400;
+      font-size: clamp(19px, 2.5vw, 27px);
+      line-height: 1.25;
+      margin-bottom: 10px;
+    }
+
+    .wire-item h3 a { color: var(--white); text-decoration: none; }
+    .wire-item h3 a:hover { color: var(--blue); }
+
+    .wire-item p {
+      font-size: 14px;
+      line-height: 1.95;
+      color: rgba(242,240,234,0.8);
+      margin-bottom: 12px;
+    }
+
+    .wire-item .credit {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--dim);
+    }
+
+    .wire-item .credit a { color: var(--dim); text-decoration: none; border-bottom: 1px dotted var(--faint); }
+    .wire-item .credit a:hover { color: var(--blue); border-color: var(--blue); }
+
+    .wire-note {
+      margin-top: 40px;
+      padding-top: 24px;
+      border-top: 1px dotted var(--faint);
+      font-family: var(--mono);
+      font-size: 10px;
+      line-height: 2;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--dim);
+    }
+
     /* ─── RESPONSIVE ─── */
     @media (max-width: 760px) {
       .work-row { grid-template-columns: 1fr; gap: 12px; }
       .work-row .meta { grid-column: 1; flex-wrap: wrap; gap: 12px; }
+      .wire-item { grid-template-columns: 1fr; gap: 10px; }
       .radio-grid { grid-template-columns: 1fr; }
       .nav-links { gap: 16px; }
       .spec-row { flex-direction: column; align-items: flex-start; gap: 6px; }
@@ -491,6 +583,7 @@
     <div class="nav-logo" onclick="show('front')">TWS</div>
     <ul class="nav-links">
       <li><span class="active" id="tab-front" onclick="show('front')">Stories</span></li>
+{{WIRE_TAB}}
       <li><span id="tab-radio" onclick="show('radio')">Radio</span></li>
       <li><span id="tab-about" onclick="show('about-page')">About &amp; Press</span></li>
     </ul>
@@ -516,6 +609,7 @@
       <div class="work wrap" id="work-anchor">
         <p class="section-label"><span>Selected Coverage</span><span>REF TWS-001</span></p>
 
+{{WIRE_ROW}}
         {{WORK_ROWS}}
 
         <div class="work-row" onclick="show('radio')">
@@ -527,6 +621,9 @@
         </div>
       </div>
     </div>
+
+    <!-- ═══ THE WIRE ═══ -->
+{{WIRE_PAGE}}
 
     <!-- ═══ ARTICLES ═══ -->
 {{ARTICLE_PAGES}}
@@ -592,7 +689,8 @@
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       document.getElementById(id).classList.add('active');
       document.querySelectorAll('.nav-links span').forEach(t => t.classList.remove('active'));
-      const tab = id === 'radio' ? 'tab-radio' : id === 'about-page' ? 'tab-about' : 'tab-front';
+      const tab = id === 'radio' ? 'tab-radio' : id === 'about-page' ? 'tab-about'
+        : id === 'wire' ? 'tab-wire' : 'tab-front';
       document.getElementById(tab).classList.add('active');
       window.scrollTo({ top: 0, behavior: 'instant' });
     }

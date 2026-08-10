@@ -55,13 +55,66 @@ const stories = fs.readdirSync(storyDir)
   .filter(s => s && s.title)
   .sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
 
-// ── build work rows ──
+// ── load The Wire (the daily brief), if one has been generated ──
 const pad = n => String(n).padStart(2, '0');
+const wirePath = path.join(ROOT, 'content', 'news', 'latest.json');
+let wire = null;
+if (fs.existsSync(wirePath)) {
+  try {
+    const parsed = JSON.parse(fs.readFileSync(wirePath, 'utf8'));
+    if (parsed && Array.isArray(parsed.items) && parsed.items.length) wire = parsed;
+  } catch (err) {
+    console.warn(`Skipping The Wire — could not read latest.json (${err.message})`);
+  }
+}
+
+// the brief takes the top slot, so stories start at 02 when it's present
+const offset = wire ? 1 : 0;
+
+const wireTab = wire
+  ? `      <li><span id="tab-wire" onclick="show('wire')">The Wire</span></li>` : '';
+
+const wireRow = wire ? `        <div class="work-row" onclick="show('wire')">
+          <span class="ref">01</span>
+          <div>
+            <h3>The Wire: ${esc(wire.dateline || 'Today')}<span class="block">▓</span></h3>
+            <div class="meta"><span>Daily Brief</span><span>${wire.items.length} Headlines</span></div>
+          </div>
+        </div>
+` : '';
+
+const wirePage = wire ? `    <div class="page" id="wire">
+      <div class="wire wrap">
+        <span class="back" onclick="show('front')">All Stories</span>
+        <div class="wire-head">
+          <p class="kicker">Daily Brief</p>
+          <h2>The Wire<span style="color:var(--blue)">▓</span></h2>
+          <p class="stamp">${esc(wire.dateline || '')} · ${wire.items.length} headlines · Music &amp; culture</p>
+        </div>
+
+${wire.items.map((item, i) => `        <div class="wire-item">
+          <span class="ref">${pad(i + 1)}</span>
+          <div>
+            <h3><a href="${esc(item.url)}" target="_blank" rel="noopener">${esc(item.title)}</a></h3>
+            ${item.summary ? `<p>${esc(item.summary)}</p>` : ''}
+            <p class="credit">${esc(item.source)} · <a href="${esc(item.url)}" target="_blank" rel="noopener">Read the full story</a></p>
+          </div>
+        </div>`).join('\n\n')}
+
+        <p class="wire-note">
+          The Wire collects the day's music and culture headlines from other publications.
+          Every item links to the original reporting at its source. Summaries are written
+          automatically from each outlet's own description — read the full story at the link.
+        </p>
+      </div>
+    </div>` : '';
+
+// ── build work rows ──
 const rows = stories.map((s, i) => {
   const meta = [s.kicker, s.location, s.video ? 'Video' : '', (s.photos && s.photos.length) ? 'Photos' : '']
     .filter(Boolean).map(x => `<span>${esc(x)}</span>`).join('');
   return `        <div class="work-row" onclick="show('a-${s.slug}')">
-          <span class="ref">${pad(i + 1)}</span>
+          <span class="ref">${pad(i + 1 + offset)}</span>
           <div>
             <h3>${esc(s.title)}<span class="block">▓</span></h3>
             <div class="meta">${meta}</div>
@@ -90,11 +143,15 @@ const pages = stories.map(s => {
 }).join('\n\n');
 
 // ── render + fix radio row number ──
+// replacements go through functions so a "$&" in a headline stays literal
 let out = fs.readFileSync(path.join(ROOT, 'template.html'), 'utf8')
-  .replace('{{WORK_ROWS}}', rows)
-  .replace('{{ARTICLE_PAGES}}', pages);
+  .replace('{{WIRE_TAB}}', () => wireTab)
+  .replace('{{WIRE_ROW}}', () => wireRow)
+  .replace('{{WORK_ROWS}}', () => rows)
+  .replace('{{WIRE_PAGE}}', () => wirePage)
+  .replace('{{ARTICLE_PAGES}}', () => pages);
 // the static radio row keeps ref "07" in the template — renumber it after the stories
-out = out.replace(/(<div class="work-row" onclick="show\('radio'\)">\s*<span class="ref">)\d+(<\/span>)/, `$1${pad(stories.length + 1)}$2`);
+out = out.replace(/(<div class="work-row" onclick="show\('radio'\)">\s*<span class="ref">)\d+(<\/span>)/, `$1${pad(stories.length + 1 + offset)}$2`);
 
 // photo styles injected once (grid + figure)
 out = out.replace('</style>', `
@@ -121,4 +178,4 @@ for (const dir of ['admin', 'images']) {
   const src = path.join(ROOT, dir);
   if (fs.existsSync(src)) copyDir(src, path.join(DIST, dir));
 }
-console.log(`Built ${stories.length} stories → dist/`);
+console.log(`Built ${stories.length} stories${wire ? ` + The Wire (${wire.items.length} headlines)` : ''} → dist/`);

@@ -1,0 +1,72 @@
+name: The Wire — daily brief
+
+on:
+  schedule:
+    # 07:00 America/Los_Angeles. GitHub cron is UTC and does not follow DST,
+    # so both offsets are listed; the job exits early on the wrong one.
+    - cron: "0 14 * * *"   # 07:00 PDT (Mar–Nov)
+    - cron: "0 15 * * *"   # 07:00 PST (Nov–Mar)
+  workflow_dispatch:
+
+concurrency:
+  group: the-wire
+  cancel-in-progress: false
+
+jobs:
+  brief:
+    runs-on: ubuntu-latest
+    outputs:
+      published: ${{ steps.commit.outputs.published }}
+    permissions:
+      contents: write
+    steps:
+      - name: Skip the duplicate DST run
+        id: gate
+        run: |
+          hour=$(TZ=America/Los_Angeles date +%H)
+          if [ "${{ github.event_name }}" = "schedule" ] && [ "$hour" != "07" ]; then
+            echo "Local time is ${hour}:00 in Los Angeles — this is the other DST cron. Skipping."
+            echo "run=false" >> $GITHUB_OUTPUT
+          else
+            echo "run=true" >> $GITHUB_OUTPUT
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.gate.outputs.run == 'true'
+
+      - uses: actions/setup-node@v4
+        if: steps.gate.outputs.run == 'true'
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        if: steps.gate.outputs.run == 'true'
+        run: npm install --no-audit --no-fund
+
+      - name: Gather headlines and write summaries
+        if: steps.gate.outputs.run == 'true'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: node scripts/fetch-news.js
+
+      - name: Commit the brief
+        id: commit
+        if: steps.gate.outputs.run == 'true'
+        run: |
+          git config user.name "TWS Wire"
+          git config user.email "noreply@7langes.la"
+          git add content/news/latest.json
+          if git diff --staged --quiet; then
+            echo "No change in today's brief — nothing to publish."
+            echo "published=false" >> $GITHUB_OUTPUT
+          else
+            git commit -m "The Wire: $(TZ=America/Los_Angeles date '+%B %-d, %Y')"
+            git push
+            echo "published=true" >> $GITHUB_OUTPUT
+          fi
+
+  deploy:
+    needs: brief
+    if: needs.brief.outputs.published == 'true'
+    uses: ./.github/workflows/deploy.yml
+    secrets: inherit
