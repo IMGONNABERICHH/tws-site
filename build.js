@@ -77,8 +77,8 @@ const wireTab = wire
 const wireRow = wire ? `        <div class="work-row" onclick="show('wire')">
           <span class="ref">01</span>
           <div>
-            <h3>The Wire: ${esc(wire.dateline || 'Today')}<span class="block">▓</span></h3>
-            <div class="meta"><span>Daily Brief</span><span>${wire.items.length} Headlines</span></div>
+            <h3>The Wire<span class="block">▓</span></h3>
+            <div class="meta"><span>Daily Brief</span>${wire.dateline ? `<span>${esc(wire.dateline)}</span>` : ''}<span>${wire.items.length} Headlines</span></div>
           </div>
         </div>
 ` : '';
