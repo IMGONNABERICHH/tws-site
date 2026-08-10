@@ -16,6 +16,11 @@ jobs:
       CLOUDFLARE_ACCOUNT_ID: 8685957a82fa94a4d6d766f0b35acc3a
     steps:
       - uses: actions/checkout@v4
+        with:
+          # build the branch tip, not github.sha — when the daily news job calls
+          # this workflow, github.sha still points at the commit from before the
+          # brief was committed, so the site would deploy without it
+          ref: ${{ github.ref }}
       - uses: actions/setup-node@v4
         with:
           node-version: 22
