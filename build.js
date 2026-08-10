@@ -70,16 +70,11 @@ const heroFiles = fs.existsSync(heroDir)
   ? fs.readdirSync(heroDir).filter(f => /\.(jpe?g|png|webp)$/i.test(f)).sort()
   : [];
 
-// photos attached to a story lead — they have something to click through to
-heroFiles.sort((a, b) => {
-  const sa = storyByPhoto[a.replace(/\.[^.]+$/, '')] ? 0 : 1;
-  const sb = storyByPhoto[b.replace(/\.[^.]+$/, '')] ? 0 : 1;
-  return sa - sb;
-});
-
 // attribute-safe: esc() already handled & < >, so only quotes remain
 const attr = s => esc(s).replace(/"/g, '&quot;');
-const storyOf = file => storyByPhoto[file.replace(/\.[^.]+$/, '')];
+// hero files carry an "01-" prefix that sets the running order; the story
+// lookup keys off the original upload name, so strip it before matching
+const storyOf = file => storyByPhoto[file.replace(/^\d+-/, '').replace(/\.[^.]+$/, '')];
 
 // the credit is passed as plain data; the link is assembled in the page
 const creditHtml = file => {
