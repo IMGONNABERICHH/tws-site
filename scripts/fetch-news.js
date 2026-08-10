@@ -33,7 +33,7 @@ const FEEDS = [
 
 const WINDOW_HOURS = 24;       // how far back a story can be and still be "today"
 const FALLBACK_HOURS = 48;     // widen if a slow news day leaves us short
-const MAX_ITEMS = 12;          // headlines in the finished brief
+const MAX_ITEMS = 8;           // headlines in the finished brief
 const MAX_PER_SOURCE = 2;      // so one outlet can't run the whole page
 const MIN_ITEMS = 6;           // below this we widen the window
 

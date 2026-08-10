@@ -114,32 +114,29 @@ if (fs.existsSync(wirePath)) {
 
 const offset = 0;
 
-const wireTab = wire
-  ? `      <li><span id="tab-wire" onclick="toWire()">The Wire</span></li>` : '';
+const wireTab = '';
 
-// the row teases the day's lead story — the meta line is small uppercase type,
-// so keep it short and let the rest of the count carry the "there's more" part
-const shortDate = wire ? (wire.dateline || '').replace(/,\s*\d{4}$/, '') : '';
-const lead = wire ? (() => {
-  // drop any trailing "| Billboard News" style outlet tag
-  let title = wire.items[0].title.replace(/\s*[|–—]\s*[^|–—]*$/, '').trim();
+// ── build the feed ──
+// One list. TWS stories keep the display type so original reporting stays the
+// loudest thing on the page; brief items carry their summary, photo and credit.
+const storyEntries = stories.map(s => ({
+  date: new Date(s.date || 0),
+  render: n => {
+    const meta = ['TWS', s.kicker, s.location, s.video ? 'Video' : '', (s.photos && s.photos.length) ? 'Photos' : '']
+      .filter(Boolean).map(x => `<span>${esc(x)}</span>`).join('');
+    return `        <div class="work-row" onclick="show('a-${s.slug}')">
+          <span class="ref">${pad(n)}</span>
+          <div>
+            <h3>${esc(s.title)}<span class="block">▓</span></h3>
+            <div class="meta">${meta}</div>
+          </div>
+        </div>`;
+  },
+}));
 
-  if (title.length > 46) {
-    // cut at a comma or colon if one falls in a sensible spot — reads better
-    // than clipping mid-clause
-    const brk = title.slice(0, 50).search(/[,:;]/);
-    title = brk > 14
-      ? title.slice(0, brk)
-      : title.slice(0, title.lastIndexOf(' ', 44)).trim() + '…';
-  }
-  const rest = wire.items.length - 1;
-  return rest > 0 ? `${title} +${rest} more` : title;
-})() : '';
-
-const wirePage = wire ? `      <div class="wire wrap" id="wire-anchor">
-        <p class="section-label"><span>The Wire — Daily Brief</span><span>${esc(shortDate || '')}</span></p>
-
-${wire.items.map((item, i) => {
+const wireEntries = (wire ? wire.items : []).map(item => ({
+  date: new Date(item.published_at || wire.generated_at),
+  render: n => {
     const p = item.photo;
     // every licence requires the photographer and the licence named
     const shot = p ? `            <figure class="wire-shot">
@@ -147,34 +144,27 @@ ${wire.items.map((item, i) => {
               <figcaption>Photo: ${esc(p.author)} · ${esc(p.licence)} · <a href="${esc(p.page)}" target="_blank" rel="noopener">Wikimedia Commons</a></figcaption>
             </figure>\n` : '';
     return `        <div class="wire-item${p ? ' has-shot' : ''}">
-          <span class="ref">${pad(i + 1)}</span>
+          <span class="ref">${pad(n)}</span>
           <div>
             <h3><a href="${esc(item.url)}" target="_blank" rel="noopener">${esc(item.title)}</a></h3>
             ${item.summary ? `<p>${esc(item.summary)}</p>` : ''}
 ${shot}            <p class="credit">${item.summary_is_ours ? `As ${esc(item.source)} reported` : esc(item.source)}${item.corroboration > 1 ? ` · Covered by ${item.corroboration} outlets` : ''} · <a href="${esc(item.url)}" target="_blank" rel="noopener">Read the full story</a></p>
           </div>
         </div>`;
-  }).join('\n\n')}
+  },
+}));
 
-        <p class="wire-note">
-          The Wire collects the day's music and culture headlines from other publications.
-          Every item credits its source and links to the original reporting — read the
-          full story there.
-        </p>
-      </div>` : '';
+const rows = [...wireEntries, ...storyEntries]
+  .sort((a, b) => b.date - a.date)
+  .map((entry, i) => entry.render(i + 1))
+  .join('\n\n');
 
-// ── build work rows ──
-const rows = stories.map((s, i) => {
-  const meta = [s.kicker, s.location, s.video ? 'Video' : '', (s.photos && s.photos.length) ? 'Photos' : '']
-    .filter(Boolean).map(x => `<span>${esc(x)}</span>`).join('');
-  return `        <div class="work-row" onclick="show('a-${s.slug}')">
-          <span class="ref">${pad(i + 1 + offset)}</span>
-          <div>
-            <h3>${esc(s.title)}<span class="block">▓</span></h3>
-            <div class="meta">${meta}</div>
-          </div>
-        </div>`;
-}).join('\n\n');
+const radioRef = pad(stories.length + (wire ? wire.items.length : 0) + 1);
+
+const wireNote = wire ? `        <p class="wire-note">
+          Items credited to another publication are collected from that outlet's
+          news feed, summarised by TWS, and linked back to the original reporting.
+        </p>` : '';
 
 // ── build article pages ──
 const pages = stories.map(s => {
@@ -202,10 +192,10 @@ let out = fs.readFileSync(path.join(ROOT, 'template.html'), 'utf8')
   .replace('{{HERO_SLIDES}}', () => heroSlides)
   .replace('{{WIRE_TAB}}', () => wireTab)
   .replace('{{WORK_ROWS}}', () => rows)
-  .replace('{{WIRE_SECTION}}', () => wirePage)
+  .replace('{{WIRE_SECTION}}', () => wireNote)
   .replace('{{ARTICLE_PAGES}}', () => pages);
 // the static radio row keeps ref "07" in the template — renumber it after the stories
-out = out.replace(/(<div class="work-row" onclick="show\('radio'\)">\s*<span class="ref">)\d+(<\/span>)/, `$1${pad(stories.length + 1 + offset)}$2`);
+out = out.replace(/(<div class="work-row" onclick="show\('radio'\)">\s*<span class="ref">)\d+(<\/span>)/, `$1${radioRef}$2`);
 
 // photo styles injected once (grid + figure)
 out = out.replace('</style>', `
