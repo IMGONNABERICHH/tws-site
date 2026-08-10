@@ -94,6 +94,8 @@
 
     /* ─── HERO ─── */
     .hero {
+      /* one size drives both the wordmark and the strapline under it */
+      --mark-size: clamp(78px, 15vw, 190px);
       height: 100vh;
       display: flex;
       flex-direction: column;
@@ -187,7 +189,7 @@
     .hero h1 {
       font-family: var(--display);
       font-weight: 900;
-      font-size: clamp(78px, 15vw, 190px);
+      font-size: var(--mark-size);
       line-height: 0.9;
       letter-spacing: -0.045em;
       font-weight: 700;
@@ -213,18 +215,19 @@
 
     .hero .sub {
       margin-top: 30px;
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
       font-family: var(--display);
-      font-size: clamp(13px, 1.8vw, 18px);
+      /* sized off the wordmark rather than the viewport, so the words keep one
+         rhythm at every width — tied to the viewport they crowded on a phone
+         and drifted apart on a desktop. At this ratio the line's natural width
+         is the wordmark's width, so it fills the mark without being stretched. */
+      font-size: calc(var(--mark-size) * 0.1558);
+      white-space: nowrap;
       letter-spacing: 0.42em;
+      /* tracking leaves a space after the final letter; discount it so it does
+         not widen the shrink-to-fit box and push the mark out of alignment */
+      margin-right: -0.42em;
       text-transform: uppercase;
     }
-
-    /* tracking adds a space after the final letter too, which would end the
-       line short of the block; pull that trailing space back off */
-    .hero .sub span:last-child { margin-right: -0.42em; }
 
     .hero .contact {
       margin-top: 14px;
@@ -783,7 +786,7 @@
 {{HERO_SLIDES}}
         <div class="mark">
           <h1>TWS<span class="block">▓</span></h1>
-          <p class="sub"><span>Music</span><span>Culture</span><span>Radio</span></p>
+          <p class="sub">Music &nbsp;Culture &nbsp;Radio</p>
         </div>
         <span class="scroll-hint">▼ Selected Coverage</span>
       </div>
