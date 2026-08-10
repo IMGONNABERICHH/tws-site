@@ -60,9 +60,9 @@
 
     .nav-logo {
       font-family: var(--display);
-      font-weight: 900;
-      font-size: 24px;
-      letter-spacing: 0.01em;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 0.22em;
       cursor: pointer;
       user-select: none;
     }
@@ -162,7 +162,7 @@
     }
 
     @media (max-width: 400px) {
-      .nav-logo { font-size: 18px; }
+      .nav-logo { font-size: 12px; letter-spacing: 0.18em; }
       .nav-links { gap: 9px; }
       .nav-links span { font-size: 8px; letter-spacing: 0.1em; }
     }
@@ -190,10 +190,10 @@
        every font and falls apart outside the pixel face */
     .hero h1 .block {
       display: inline-block;
-      width: 0.30em;
-      height: 0.62em;
+      width: 0.72em;
+      height: 0.72em;
       background: var(--blue);
-      margin-left: 0.10em;
+      margin-left: 0.12em;
       vertical-align: baseline;
       text-indent: -9999px;
       overflow: hidden;
@@ -743,7 +743,6 @@
 
       <div class="hero" onclick="document.getElementById('work-anchor').scrollIntoView({behavior:'smooth'})">
 {{HERO_SLIDES}}
-        <p class="spec">NA02—26 · Independent Press · Los Angeles</p>
         <h1>TWS<span class="block">▓</span></h1>
         <p class="sub">Music &nbsp;Culture &nbsp;Radio</p>
         <span class="scroll-hint">▼ Selected Coverage</span>
