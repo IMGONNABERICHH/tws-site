@@ -881,6 +881,40 @@
       window.scrollTo({ top: 0, behavior: 'instant' });
     }
 
+    // Track the wordmark out until it spans exactly the same width as the line
+    // under it. A fixed CSS ratio only holds if the device renders the face
+    // with the metrics it was measured against; solving it here means the two
+    // line up on whatever font actually ends up painted.
+    (function () {
+      const h1 = document.querySelector('.hero h1');
+      const sub = document.querySelector('.hero .sub');
+      if (!h1 || !sub || !h1.querySelector('.block')) return;
+
+      function fit() {
+        h1.style.letterSpacing = '';
+        const range = document.createRange();
+        range.selectNodeContents(sub);
+        // trailing tracking sits after the last letter and paints nothing
+        const target = range.getBoundingClientRect().width
+          - parseFloat(getComputedStyle(sub).letterSpacing || 0);
+        if (!target) return;
+        // three gaps take the correction: T-W, W-S, and S to the block
+        for (let pass = 0; pass < 6; pass++) {
+          const left = h1.getBoundingClientRect().left;
+          const right = h1.querySelector('.block').getBoundingClientRect().right;
+          const diff = target - (right - left);
+          if (Math.abs(diff) < 0.2) break;
+          const base = parseFloat(getComputedStyle(h1).letterSpacing) || 0;
+          h1.style.letterSpacing = (base + diff / 3) + 'px';
+        }
+      }
+
+      fit();
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+      let t;
+      addEventListener('resize', () => { clearTimeout(t); t = setTimeout(fit, 100); });
+    })();
+
     // hero slideshow — cross-fades TWS photography behind the wordmark
     (function () {
       const slides = document.querySelectorAll('.hero-slides img');
