@@ -112,6 +112,7 @@
     /* lift the hero's own content over the photography. Listed one by one so
        the already-absolute .scroll-hint keeps its placement */
     .hero .spec,
+    .hero .mark,
     .hero h1,
     .hero .sub,
     .hero .contact { position: relative; z-index: 1; }
@@ -206,13 +207,24 @@
       overflow: hidden;
     }
 
+    /* wordmark and strapline share one shrink-to-fit box, so the strapline can
+       be set to exactly the wordmark's width and end flush on both sides */
+    .hero .mark { display: inline-block; }
+
     .hero .sub {
       margin-top: 30px;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
       font-family: var(--display);
       font-size: clamp(13px, 1.8vw, 18px);
       letter-spacing: 0.42em;
       text-transform: uppercase;
     }
+
+    /* tracking adds a space after the final letter too, which would end the
+       line short of the block; pull that trailing space back off */
+    .hero .sub span:last-child { margin-right: -0.42em; }
 
     .hero .contact {
       margin-top: 14px;
@@ -769,8 +781,10 @@
 
       <div class="hero" onclick="document.getElementById('work-anchor').scrollIntoView({behavior:'smooth'})">
 {{HERO_SLIDES}}
-        <h1>TWS<span class="block">▓</span></h1>
-        <p class="sub">Music &nbsp;Culture &nbsp;Radio</p>
+        <div class="mark">
+          <h1>TWS<span class="block">▓</span></h1>
+          <p class="sub"><span>Music</span><span>Culture</span><span>Radio</span></p>
+        </div>
         <span class="scroll-hint">▼ Selected Coverage</span>
       </div>
 
