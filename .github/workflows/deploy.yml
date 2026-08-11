@@ -25,6 +25,8 @@ jobs:
         with:
           node-version: 22
       - run: node build.js
+      - name: Refuse to deploy a build that lost published work
+        run: node scripts/verify-brief.js --built
       - name: Deploy
         if: env.CLOUDFLARE_API_TOKEN != ''
         run: npx --yes wrangler@4 pages deploy dist --project-name=tws-site --branch=main --commit-dirty=true

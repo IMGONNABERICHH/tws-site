@@ -68,6 +68,10 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: node scripts/fetch-news.js
 
+      - name: Refuse to drop a published brief
+        if: steps.gate.outputs.run == 'true'
+        run: node scripts/verify-brief.js --archive
+
       - name: Commit the brief
         id: commit
         if: steps.gate.outputs.run == 'true'
