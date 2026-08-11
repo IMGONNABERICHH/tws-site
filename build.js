@@ -119,16 +119,56 @@ ${heroFiles.map((f, i) => {
 
 // ── load The Wire (the daily brief), if one has been generated ──
 const pad = n => String(n).padStart(2, '0');
-const wirePath = path.join(ROOT, 'content', 'news', 'latest.json');
-let wire = null;
-if (fs.existsSync(wirePath)) {
+// Every day's brief is kept. Each run writes its own dated file, so a new
+// morning adds to the record instead of replacing it.
+const newsDir = path.join(ROOT, 'content', 'news');
+const archiveDir = path.join(newsDir, 'archive');
+
+function readBrief(file) {
   try {
-    const parsed = JSON.parse(fs.readFileSync(wirePath, 'utf8'));
-    if (parsed && Array.isArray(parsed.items) && parsed.items.length) wire = parsed;
+    const parsed = JSON.parse(fs.readFileSync(file, 'utf8'));
+    if (parsed && Array.isArray(parsed.items) && parsed.items.length) return parsed;
   } catch (err) {
-    console.warn(`Skipping The Wire — could not read latest.json (${err.message})`);
+    console.warn(`Skipping ${path.basename(file)} — ${err.message}`);
+  }
+  return null;
+}
+
+const briefs = (fs.existsSync(archiveDir) ? fs.readdirSync(archiveDir) : [])
+  .filter(f => f.endsWith('.json'))
+  .sort()
+  .reverse()
+  .map(f => readBrief(path.join(archiveDir, f)))
+  .filter(Boolean);
+
+// nothing archived yet — fall back to the single latest file
+if (!briefs.length) {
+  const latest = fs.existsSync(path.join(newsDir, 'latest.json'))
+    && readBrief(path.join(newsDir, 'latest.json'));
+  if (latest) briefs.push(latest);
+}
+
+const wireSlug = t => 'w-' + t.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60);
+
+// A story can carry over between mornings while it is still inside the
+// window, so keep the first sighting of each and drop the repeats. Slugs are
+// made unique too: two different stories can round to the same one, and a
+// collision would point two feed rows at a single page.
+const seenUrl = new Set();
+const seenSlug = new Set();
+const wireItems = [];
+for (const brief of briefs) {
+  for (const item of brief.items) {
+    if (!item.url || seenUrl.has(item.url)) continue;
+    seenUrl.add(item.url);
+    let slug = wireSlug(item.title);
+    for (let n = 2; seenSlug.has(slug); n++) slug = `${wireSlug(item.title)}-${n}`;
+    seenSlug.add(slug);
+    wireItems.push({ ...item, slug, dateline: brief.dateline, generated_at: brief.generated_at });
   }
 }
+
+const wire = wireItems.length ? { items: wireItems } : null;
 
 const offset = 0;
 
@@ -159,10 +199,8 @@ ${thumb}
   },
 }));
 
-const wireSlug = t => 'w-' + t.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60);
-
 const wireEntries = (wire ? wire.items : []).map(item => ({
-  date: new Date(item.published_at || wire.generated_at),
+  date: new Date(item.published_at || item.generated_at),
   render: n => {
     const p = item.photo;
     // every licence requires the photographer and the licence named
@@ -174,7 +212,7 @@ const wireEntries = (wire ? wire.items : []).map(item => ({
     // outlet is named in the story itself and does not need repeating here
     const shotCredit = p
       ? `            <p class="credit">Photo ${esc(p.author)} / ${esc(p.licence)}</p>` : '';
-    return `        <div class="wire-item${p ? ' has-shot' : ''}" onclick="show('${wireSlug(item.title)}')">
+    return `        <div class="wire-item${p ? ' has-shot' : ''}" onclick="show('${item.slug}')">
           <span class="ref">${pad(n)}</span>
 ${shot}
           <div class="wire-text">
@@ -209,7 +247,7 @@ const wirePages = (wire ? wire.items : []).map(item => {
   const when = item.published_at
     ? new Date(item.published_at).toLocaleDateString('en-US',
         { timeZone: 'America/Los_Angeles', month: 'long', day: 'numeric', year: 'numeric' })
-    : (wire.dateline || '');
+    : (item.dateline || '');
   const body = (item.summary || '').split(/\n\s*\n/)
     .map(par => par.trim()).filter(Boolean)
     .map(par => `        <p>${esc(par)}</p>`).join('\n');
@@ -221,7 +259,7 @@ const wirePages = (wire ? wire.items : []).map(item => {
           Reported by
           <a href="${esc(item.url)}" target="_blank" rel="noopener">${esc(item.source)}</a>${item.corroboration > 1 ? `, and covered by ${item.corroboration} outlets` : ''}.
         </p>`;
-  return `    <div class="page" id="${wireSlug(item.title)}">
+  return `    <div class="page" id="${item.slug}">
       <div class="article wrap">
         <span class="back" onclick="show('front')">All Coverage</span>
         <p class="kicker">The Wire</p>

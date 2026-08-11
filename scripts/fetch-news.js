@@ -511,9 +511,17 @@ async function findPhoto(item) {
     })),
   };
 
+  const json = JSON.stringify(brief, null, 2) + '\n';
   fs.mkdirSync(OUT_DIR, { recursive: true });
-  fs.writeFileSync(OUT_FILE, JSON.stringify(brief, null, 2) + '\n');
-  console.log(`Wrote ${brief.items.length} headlines → content/news/latest.json`);
+  fs.writeFileSync(OUT_FILE, json);
+
+  // Its own dated file as well, so tomorrow's run adds to the record rather
+  // than writing over today's. The site is built from this directory.
+  const stamp = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles' });
+  const archiveDir = path.join(OUT_DIR, 'archive');
+  fs.mkdirSync(archiveDir, { recursive: true });
+  fs.writeFileSync(path.join(archiveDir, `${stamp}.json`), json);
+  console.log(`Wrote ${brief.items.length} headlines → content/news/archive/${stamp}.json`);
 })().catch(err => {
   console.error(err);
   process.exit(1);

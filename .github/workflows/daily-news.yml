@@ -74,7 +74,7 @@ jobs:
         run: |
           git config user.name "TWS Wire"
           git config user.email "noreply@7langes.la"
-          git add content/news/latest.json
+          git add content/news
           if git diff --staged --quiet; then
             echo "No change in today's brief — nothing to publish."
             echo "published=false" >> $GITHUB_OUTPUT
