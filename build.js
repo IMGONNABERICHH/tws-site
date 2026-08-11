@@ -211,6 +211,14 @@ const wirePages = (wire ? wire.items : []).map(item => {
   const body = (item.summary || '').split(/\n\s*\n/)
     .map(par => par.trim()).filter(Boolean)
     .map(par => `        <p>${esc(par)}</p>`).join('\n');
+  // When the piece is TWS's own writing it names its source inside the body,
+  // so no notice is needed at the foot. When the rewrite failed and we are
+  // running the outlet's own summary text, the credit has to stay — those are
+  // someone else's words, and dropping it would be passing them off as ours.
+  const sourceLine = item.summary_is_ours ? '' : `        <p class="source-line">
+          Reported by
+          <a href="${esc(item.url)}" target="_blank" rel="noopener">${esc(item.source)}</a>${item.corroboration > 1 ? `, and covered by ${item.corroboration} outlets` : ''}.
+        </p>`;
   return `    <div class="page" id="${wireSlug(item.title)}">
       <div class="article wrap">
         <span class="back" onclick="show('front')">All Coverage</span>
@@ -219,11 +227,7 @@ const wirePages = (wire ? wire.items : []).map(item => {
         <p class="byline">TWS${when ? ` · ${esc(when)}` : ''}</p>
 ${body}
 ${shot}
-        <p class="source-line">
-          ${item.summary_is_ours ? 'Summarised by TWS from reporting by' : 'Reported by'}
-          <a href="${esc(item.url)}" target="_blank" rel="noopener">${esc(item.source)}</a>${item.corroboration > 1 ? `, and covered by ${item.corroboration} outlets` : ''}.
-          <a href="${esc(item.url)}" target="_blank" rel="noopener">Read their full report</a>.
-        </p>
+${sourceLine}
       </div>
     </div>`;
 }).join('\n\n');

@@ -222,10 +222,12 @@ How to write it:
 - Open with what happened and who it involves. The first paragraph should stand on its own as the news.
 - Then the detail that makes it matter: dates, titles, numbers, names, what it follows, what comes next.
 - Close on where things stand, not on a flourish. No "stay tuned", no "time will tell", no rhetorical questions.
-- Attribute the reporting once, naturally, in the body — "Billboard reported", "according to Deadline" — where a reader would want to know who found this out.
+- Active voice throughout. "NBC scheduled the marathon", not "the marathon was scheduled by NBC". Name who did the thing and let them do it.
+- Attribute the reporting once, naturally, in the body — "Billboard reported", "according to Deadline" — where a reader would want to know who found this out. This is the only place the source is named, so it has to be there.
 
 Hard rules:
 - Every fact must come from the source text. If it is not there, it does not go in the article.
+- Never write as though TWS did the reporting. TWS made no calls, attended nothing and confirmed nothing here. No "we", no "TWS has learned", no "sources tell us", no "when we spoke to", no first-hand detail of any kind. The outlet you name is who found this out.
 - Never invent quotes, dates, figures, titles, or names. If the source text is genuinely thin, write two or three paragraphs rather than padding with invention — short and true beats long and made up.
 - Write it fresh in your own sentences and structure. Do not follow the source's phrasing, sentence order, or turns of phrase. If a quote is used, keep it exact, in quotation marks, and say who said it.
 - No markdown, no headings, no emoji. Return each paragraph as its own string in the array.
