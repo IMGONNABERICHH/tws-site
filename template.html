@@ -109,13 +109,13 @@
     /* ─── HERO SLIDESHOW (TWS Studio photography) ─── */
     /* z-index 0, not -1: body paints its own background box, and a negative
        layer would sit underneath it and never be seen */
-    /* taller than the hero and hung above it, so the layer can drift down on
-       scroll without ever uncovering an edge */
+    /* exactly the hero's box — no oversizing. The layer drifts down more
+       slowly than the page scrolls up, so the gap it opens at the top is
+       always smaller than the distance already scrolled past, and never
+       reaches the viewport. Growing this box would only crop the photo. */
     .hero-slides {
       position: absolute;
-      left: 0; right: 0;
-      top: -20%;
-      height: 140%;
+      inset: 0;
       z-index: 0;
       will-change: transform;
     }
@@ -938,9 +938,9 @@
         // appears to hold for a beat before letting go
         mark.style.transform = 'translate3d(0,' + (y * 0.42) + 'px,0)';
         mark.style.opacity = Math.max(0, 1 - t * 1.9);
-        // the photography moves least — it is the furthest layer back
-        slides.style.transform =
-          'translate3d(0,' + (y * 0.14) + 'px,0) scale(' + (1 + t * 0.06) + ')';
+        // the photography moves least — it is the furthest layer back. Drift
+        // only, no scale: any scale here would re-crop the shot.
+        slides.style.transform = 'translate3d(0,' + (y * 0.14) + 'px,0)';
         if (hint) hint.style.opacity = Math.max(0, 1 - t * 5);
       }
 
