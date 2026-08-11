@@ -170,14 +170,17 @@ const wireEntries = (wire ? wire.items : []).map(item => ({
     const shot = p ? `          <figure class="wire-shot">
             <img src="${esc(p.src)}" alt="${esc(p.subject)}" loading="lazy"${size}>
           </figure>` : '          <div class="wire-shot"></div>';
-    const shotCredit = p ? ` · Photo ${esc(p.author)} / ${esc(p.licence)}` : '';
+    // the photographer and licence are licence terms, so they stay; the
+    // outlet is named in the story itself and does not need repeating here
+    const shotCredit = p
+      ? `            <p class="credit">Photo ${esc(p.author)} / ${esc(p.licence)}</p>` : '';
     return `        <div class="wire-item${p ? ' has-shot' : ''}" onclick="show('${wireSlug(item.title)}')">
           <span class="ref">${pad(n)}</span>
 ${shot}
           <div class="wire-text">
             <h3>${esc(item.title)}</h3>
             ${item.summary ? `<p>${esc(item.summary.split(/\n\s*\n/)[0])}</p>` : ''}
-            <p class="credit">${item.summary_is_ours ? `As ${esc(item.source)} reported` : esc(item.source)}${item.corroboration > 1 ? ` · Covered by ${item.corroboration} outlets` : ''}${shotCredit}</p>
+${shotCredit}
           </div>
         </div>`;
   },
@@ -190,10 +193,9 @@ const rows = [...wireEntries, ...storyEntries]
 
 const radioRef = pad(stories.length + (wire ? wire.items.length : 0) + 1);
 
-const wireNote = wire ? `        <p class="wire-note">
-          Items credited to another publication are collected from that outlet's
-          news feed, summarised by TWS, and linked back to the original reporting.
-        </p>` : '';
+// no standing note above the feed: the brief is TWS's own writing and names
+// its source inside each story, and nothing links out any more
+const wireNote = '';
 
 // ── brief pages ──
 // Each item gets a page on TWS: the summary, the photo, and the source
