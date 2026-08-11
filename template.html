@@ -109,7 +109,18 @@
     /* ─── HERO SLIDESHOW (TWS Studio photography) ─── */
     /* z-index 0, not -1: body paints its own background box, and a negative
        layer would sit underneath it and never be seen */
-    .hero-slides { position: absolute; inset: 0; z-index: 0; }
+    /* taller than the hero and hung above it, so the layer can drift down on
+       scroll without ever uncovering an edge */
+    .hero-slides {
+      position: absolute;
+      left: 0; right: 0;
+      top: -20%;
+      height: 140%;
+      z-index: 0;
+      will-change: transform;
+    }
+
+    .hero .mark, .hero .scroll-hint { will-change: transform, opacity; }
 
     /* lift the hero's own content over the photography. Listed one by one so
        the already-absolute .scroll-hint keeps its placement */
@@ -903,6 +914,41 @@
       if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
       let t;
       addEventListener('resize', () => { clearTimeout(t); t = setTimeout(fit, 100); });
+    })();
+
+    // The hero reads as a welcome panel: the photography drifts at a slower
+    // rate than the page, and the wordmark lifts and fades out so the feed
+    // arrives on its own rather than pushing a static block off the top.
+    (function () {
+      const hero = document.querySelector('.hero');
+      const mark = document.querySelector('.hero .mark');
+      const hint = document.querySelector('.hero .scroll-hint');
+      const slides = document.querySelector('.hero-slides');
+      if (!hero || !mark) return;
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+      let queued = false;
+
+      function frame() {
+        queued = false;
+        const h = hero.offsetHeight || 1;
+        const y = Math.min(Math.max(window.scrollY, 0), h);
+        const t = y / h;                     // 0 at rest, 1 once the hero is past
+        // the mark travels with the page but only part of the way, so it
+        // appears to hold for a beat before letting go
+        mark.style.transform = 'translate3d(0,' + (y * 0.42) + 'px,0)';
+        mark.style.opacity = Math.max(0, 1 - t * 1.9);
+        // the photography moves least — it is the furthest layer back
+        slides.style.transform =
+          'translate3d(0,' + (y * 0.14) + 'px,0) scale(' + (1 + t * 0.06) + ')';
+        if (hint) hint.style.opacity = Math.max(0, 1 - t * 5);
+      }
+
+      addEventListener('scroll', function () {
+        if (!queued) { queued = true; requestAnimationFrame(frame); }
+      }, { passive: true });
+      addEventListener('resize', frame);
+      frame();
     })();
 
     // hero slideshow — cross-fades TWS photography behind the wordmark
