@@ -268,6 +268,10 @@ const wirePages = (wire ? wire.items : []).map(item => {
 ${body}
 ${shot}
 ${sourceLine}
+        <button class="like-btn" data-slug="${esc(item.slug)}" onclick="toggleLike(this)" aria-label="Like this story">
+          <svg class="like-icon" viewBox="0 0 24 24"><path d="M12 21s-6.716-4.35-9.428-8.216C.688 10.09 1.2 6.5 4.2 5.1 6.6 4 9 4.8 12 8c3-3.2 5.4-4 7.8-2.9 3 1.4 3.512 5-.372 7.684C18.716 16.65 12 21 12 21z"/></svg>
+          Like
+        </button>
       </div>
     </div>`;
 }).join('\n\n');
@@ -288,6 +292,10 @@ const pages = stories.map(s => {
         ${md(s.body)}
         ${photos}
         ${video}
+        <button class="like-btn" data-slug="a-${s.slug}" onclick="toggleLike(this)" aria-label="Like this story">
+          <svg class="like-icon" viewBox="0 0 24 24"><path d="M12 21s-6.716-4.35-9.428-8.216C.688 10.09 1.2 6.5 4.2 5.1 6.6 4 9 4.8 12 8c3-3.2 5.4-4 7.8-2.9 3 1.4 3.512 5-.372 7.684C18.716 16.65 12 21 12 21z"/></svg>
+          Like
+        </button>
       </div>
     </div>`;
 }).join('\n\n');
