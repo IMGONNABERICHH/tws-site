@@ -77,8 +77,13 @@ function checkBuilt() {
     .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60);
 
   const days = briefs();
+  // build.js walks archives newest-first and keeps the first sighting of each
+  // URL, so a headline edited on a later day wins. Match that order here —
+  // otherwise a retitled rerun of the same story (same URL, new text) looks
+  // like the build dropped the original title's page, when really it built
+  // the newer one.
   const wanted = new Map();          // url → title, deduplicated the way the build does
-  for (const { data } of days) {
+  for (const { data } of [...days].reverse()) {
     for (const item of data.items || []) {
       if (item.url && !wanted.has(item.url)) wanted.set(item.url, item.title || '');
     }
